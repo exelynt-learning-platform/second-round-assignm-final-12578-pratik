@@ -1,4 +1,4 @@
-package com.multigenesystask.config.jwt;
+package com.multigenesystask.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

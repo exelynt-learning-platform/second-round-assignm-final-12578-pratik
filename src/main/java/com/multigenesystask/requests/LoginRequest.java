@@ -1,4 +1,4 @@
-package com.multigenesystask.dtos;
+package com.multigenesystask.requests;
 
 import lombok.Data;
 

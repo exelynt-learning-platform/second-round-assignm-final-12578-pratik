@@ -1,8 +1,8 @@
 package com.multigenesystask.service;
 
-import com.multigenesystask.dtos.RegisterRequest;
 import com.multigenesystask.entity.User;
 import com.multigenesystask.exception.UserException;
+import com.multigenesystask.requests.RegisterRequest;
 
 public interface UserService {
 
@@ -10,6 +10,7 @@ public interface UserService {
 	
 	public User findUserProfileByJwt(String jwt) throws UserException;
 	
+	public User findUserByEmail(String email);
 	
-	public void registerUser(RegisterRequest registerRequest);
+	public User registerUser(User user);
 }
