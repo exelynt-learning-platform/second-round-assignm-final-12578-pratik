@@ -44,6 +44,6 @@ public class Cart {
 
 	private int totalDiscountedPrice;
 
-	private int discount;
+	private int discounte;
 
 }

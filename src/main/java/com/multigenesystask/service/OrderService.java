@@ -9,15 +9,15 @@ import com.multigenesystask.exception.OrderException;
 
 public interface OrderService {
 	
-	public Order createOrder(User user, Address shippingAdress) throws OrderException;
+	public Order createOrder(User user, Address shippingAdress);
 	
 	public Order findOrderById(Long orderId) throws OrderException;
 	
-	public List<Order> usersOrderHistory(Long userId) throws OrderException;
-
+	public List<Order> usersOrderHistory(Long userId);
+	
 	public Order placedOrder(Long orderId) throws OrderException;
 	
-	public Order confirmationOrder(Long orderId) throws OrderException;
+	public Order confirmedOrder(Long orderId)throws OrderException;
 	
 	public Order shippedOrder(Long orderId) throws OrderException;
 	
@@ -25,8 +25,7 @@ public interface OrderService {
 	
 	public Order cancledOrder(Long orderId) throws OrderException;
 	
-	public List<Order> getAllOrders();
-	
+	public List<Order>getAllOrders();
 	
 	public void deleteOrder(Long orderId) throws OrderException;
 

@@ -1,6 +1,7 @@
 package com.multigenesystask.service;
 
 import com.multigenesystask.entity.Cart;
+import com.multigenesystask.entity.CartItem;
 import com.multigenesystask.entity.User;
 import com.multigenesystask.exception.ProductException;
 import com.multigenesystask.requests.AddItemRequest;
@@ -8,9 +9,9 @@ import com.multigenesystask.requests.AddItemRequest;
 public interface CartService {
 
 	
-	public Cart createCart(User user);
+public Cart createCart(User user);
 	
-	public String addCartItem(Long userId, AddItemRequest req) throws ProductException;
+	public CartItem addCartItem(Long userId,AddItemRequest req) throws ProductException;
 	
 	public Cart findUserCart(Long userId);
 	

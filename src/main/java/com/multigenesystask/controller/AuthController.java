@@ -29,7 +29,7 @@ public class AuthController {
 	@PostMapping("/public/register")
 	public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) throws UserException {
 		User user = new User();
-		User isEmailExists = userRepository.findByEmail(registerRequest.getEmail()).get();
+		User isEmailExists = userRepository.findByEmail(registerRequest.getEmail());
 		if(isEmailExists != null) {
 			throw new UserException("Email is Already Used with Another account");
 		}
@@ -40,7 +40,7 @@ public class AuthController {
 		user.setPassword(registerRequest.getPassword());
 		user.setRole("ROLE_USER");
 		user.setMobile(registerRequest.getMobile());
-		user.setCreated(LocalDateTime.now());
+		user.setCreatedAt(LocalDateTime.now());
 		
 		
 		userService.registerUser(user);

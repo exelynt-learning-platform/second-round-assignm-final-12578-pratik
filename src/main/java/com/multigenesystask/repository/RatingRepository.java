@@ -10,7 +10,8 @@ import com.multigenesystask.entity.Rating;
 
 public interface RatingRepository extends JpaRepository<Rating, Long>{
 	
-	@Query("Select r from Rating r Where r.product.id =:productId")
+	@Query("Select r From Rating r where r.product.id=:productId")
 	public List<Rating> getAllProductsRating(@Param("productId") Long productId);
+
 
 }

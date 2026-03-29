@@ -49,9 +49,8 @@ public class UserServiceImplementation implements UserService {
 	}
 
 	public User findUserByEmail(String email) {
-		return userRepository.findByEmail(email)
-				.orElseThrow(() -> new UsernameNotFoundException("User not found with mail: " + email));
-	}
+		return userRepository.findByEmail(email);
+		}
 
 	@Override
 	public User findUserById(Long userId) throws UserException {
@@ -67,9 +66,9 @@ public class UserServiceImplementation implements UserService {
 	public User findUserProfileByJwt(String jwt) throws UserException {
 		String email = jwtUtils.getUserNameFromJwtToken(jwt);
 
-		Optional<User> user = userRepository.findByEmail(email);
+		User user = userRepository.findByEmail(email);
 
-		return user.orElseThrow(() -> new UserException("User not found with email: " + email));
+		return user;
 	}
 
 

@@ -29,48 +29,59 @@ public class AdminProductController {
 	private ProductService productService;
 
 	@PostMapping("/")
-	public ResponseEntity<Product> createdProducts(@RequestBody CreateProductRequest req) {
-		Product product = productService.createProduct(req);
-
-		return new ResponseEntity<Product>(product, HttpStatus.CREATED);
-
+	public ResponseEntity<Product> createProductHandler(@RequestBody CreateProductRequest req) throws ProductException{
+		
+		Product createdProduct = productService.createProduct(req);
+		
+		return new ResponseEntity<Product>(createdProduct,HttpStatus.ACCEPTED);
+		
 	}
-
+	
 	@DeleteMapping("/{productId}/delete")
-	public ResponseEntity<String> deleteProduct(@PathVariable Long productId) throws ProductException {
-		productService.deleteProduct(productId);
-
-		return new ResponseEntity<String>("Product deleted successfully", HttpStatus.OK);
+	public ResponseEntity<ApiResponse> deleteProductHandler(@PathVariable Long productId) throws ProductException{
+		
+		System.out.println("dlete product controller .... ");
+		String msg=productService.deleteProduct(productId);
+		System.out.println("dlete product controller .... msg "+msg);
+		ApiResponse res=new ApiResponse(msg,true);
+		
+		return new ResponseEntity<ApiResponse>(res,HttpStatus.ACCEPTED);
+		
 	}
-
+	
 	@GetMapping("/all")
 	public ResponseEntity<List<Product>> findAllProduct(){
 		
-		List<Product> products = productService.findAllProducts();
-		return new ResponseEntity<List<Product>>(products, HttpStatus.OK);
+		List<Product> products = productService.getAllProducts();
+		
+		return new ResponseEntity<List<Product>>(products,HttpStatus.OK);
+	}
+	
+	@GetMapping("/recent")
+	public ResponseEntity<List<Product>> recentlyAddedProduct(){
+		
+		List<Product> products = productService.recentlyAddedProduct();
+		
+		return new ResponseEntity<List<Product>>(products,HttpStatus.OK);
 	}
 	
 	
 	@PutMapping("/{productId}/update")
-	public ResponseEntity<Product> updateProduct(@RequestBody Product req, @PathVariable Long productId) throws ProductException{
+	public ResponseEntity<Product> updateProductHandler(@RequestBody Product req,@PathVariable Long productId) throws ProductException{
 		
-		Product product = productService.updateProduct(productId, req);
-		return new ResponseEntity<Product>(product, HttpStatus.CREATED);
+		Product updatedProduct=productService.updateProduct(productId, req);
+		
+		return new ResponseEntity<Product>(updatedProduct,HttpStatus.OK);
 	}
-
 	
 	@PostMapping("/creates")
-	public ResponseEntity<ApiResponse> createMultipleProducts(@RequestBody CreateProductRequest[] req){
+	public ResponseEntity<ApiResponse> createMultipleProduct(@RequestBody CreateProductRequest[] reqs) throws ProductException{
 		
-		for(CreateProductRequest product: req) {
+		for(CreateProductRequest product:reqs) {
 			productService.createProduct(product);
 		}
 		
-		ApiResponse apiResponse = new ApiResponse();
-		apiResponse.setMessage("Multiple products created successfully");
-		apiResponse.setStatus(true);
-		
-		return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.CREATED);
-		
+		ApiResponse res=new ApiResponse("products created successfully",true);
+		return new ResponseEntity<ApiResponse>(res,HttpStatus.ACCEPTED);
 	}
 }

@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.multigenesystask.constants.OrderStatus;
+import com.multigenesystask.user.domain.OrderStatus;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
@@ -48,7 +48,7 @@ public class Order {
 	
 	
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-	private List<OrderItems> orderItems = new ArrayList<>();
+	private List<OrderItem> orderItems = new ArrayList<>();
 	
 	
 	private LocalDateTime orderDate;
@@ -62,10 +62,6 @@ public class Order {
 	
 	
 	@Embedded
-	@AttributeOverrides({
-	    @AttributeOverride(name = "paymentMethod", column = @Column(name = "payment_method")),
-	    @AttributeOverride(name = "status", column = @Column(name = "payment_status"))
-	})
 	private PaymentDetails paymentDetails;
 	
 	

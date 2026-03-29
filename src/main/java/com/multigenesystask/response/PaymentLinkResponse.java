@@ -1,17 +1,13 @@
 package com.multigenesystask.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Setter
-@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApiResponse {
-	
-	public String message;
-	public Boolean status;
-
+@Data
+public class PaymentLinkResponse {
+	private String payment_link_url;
+	private String payment_link_id;
 }

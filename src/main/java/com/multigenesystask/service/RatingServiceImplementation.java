@@ -24,22 +24,22 @@ public class RatingServiceImplementation implements RatingService{
 	
 	private ProductService productService;
 	@Override
-	public Rating createRating(RatingRequest req, User user) throws ProductException {
-		Product product = productService.findProductById(req.getProductId());
-		Rating rating = new Rating();
+	public Rating createRating(RatingRequest req,User user) throws ProductException {
+		
+		Product product=productService.findProductById(req.getProductId());
+		
+		Rating rating=new Rating();
 		rating.setProduct(product);
 		rating.setUser(user);
 		rating.setRating(req.getRating());
-		rating.setCreatedDate(LocalDateTime.now());
+		rating.setCreatedAt(LocalDateTime.now());
 		
 		return ratingRepository.save(rating);
-
-
 	}
 
 	@Override
-	public List<Rating> getProductRatings(Long productId) {
+	public List<Rating> getProductsRating(Long productId) {
+		// TODO Auto-generated method stub
 		return ratingRepository.getAllProductsRating(productId);
 	}
-
 }

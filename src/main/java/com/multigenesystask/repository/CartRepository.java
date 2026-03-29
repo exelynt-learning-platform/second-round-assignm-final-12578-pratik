@@ -9,7 +9,7 @@ import com.multigenesystask.entity.User;
 
 public interface CartRepository extends JpaRepository<Cart, Long> {
 	
-	@Query("SELECT c FROM Cart c WHERE c.user.id = :userId")
-	Cart findByUserId(@Param("userId") Long userId);
+	@Query("SELECT c From Cart c where c.user.id=:userId")
+	public Cart findByUserId(@Param("userId")Long userId);
 
 }

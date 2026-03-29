@@ -1,6 +1,6 @@
 package com.multigenesystask.service;
 
-import com.multigenesystask.entity.OrderItems;
+import com.multigenesystask.entity.OrderItem;
 import com.multigenesystask.repository.OrderItemRepository;
 
 public class OrderItemServiceImplementation implements OrderItemService{
@@ -9,7 +9,7 @@ public class OrderItemServiceImplementation implements OrderItemService{
 	private OrderItemRepository orderItemRepository;
 
 	@Override
-	public OrderItems createOrderItem(OrderItems orderItem) {
+	public OrderItem createOrderItem(OrderItem orderItem) {
 		// TODO Auto-generated method stub
 		return orderItemRepository.save(orderItem);
 	}

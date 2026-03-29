@@ -1,6 +1,6 @@
 package com.multigenesystask.entity;
 
-import com.multigenesystask.constants.PaymentStatus;
+import com.multigenesystask.user.domain.PaymentStatus;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -14,7 +14,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-@Embeddable
 public class PaymentDetails {
 
 	private String paymentMethod;
@@ -30,6 +29,6 @@ public class PaymentDetails {
 
 	private String razorpayPaymentLinkStatus;
 
-	private String razorpayPaymentId;
+	private String razorpayPaymentId​;
 
 }

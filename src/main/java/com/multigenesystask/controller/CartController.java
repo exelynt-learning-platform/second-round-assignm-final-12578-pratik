@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.multigenesystask.entity.Cart;
+import com.multigenesystask.entity.CartItem;
 import com.multigenesystask.entity.User;
 import com.multigenesystask.exception.ProductException;
 import com.multigenesystask.exception.UserException;
@@ -32,29 +33,29 @@ public class CartController {
 	private UserService userService;
 
 	@GetMapping("/")
-	public ResponseEntity<Cart> findUserCart(Principal princial) throws UserException {
-		User user = userService.findUserByEmail(princial.getName());
-		Cart cart = cartService.findUserCart(user.getId());
-
-		return new ResponseEntity<Cart>(cart, HttpStatus.OK);
-
+	public ResponseEntity<Cart> findUserCartHandler(@RequestHeader("Authorization") String jwt) throws UserException{
+		
+		User user=userService.findUserProfileByJwt(jwt);
+		
+		Cart cart=cartService.findUserCart(user.getId());
+		
+		System.out.println("cart - "+cart.getUser().getEmail());
+		
+		return new ResponseEntity<Cart>(cart,HttpStatus.OK);
 	}
-
+	
 	@PutMapping("/add")
-	public ResponseEntity<ApiResponse> addItemToCart(@RequestBody AddItemRequest addItemRequest, Principal principal)
-			throws ProductException {
-
-		User user = userService.findUserByEmail(principal.getName());
-
-		cartService.addCartItem(user.getId(), addItemRequest);
-
-		ApiResponse apiResponse = new ApiResponse();
-
-		apiResponse.setMessage("Item added to the cart");
-		apiResponse.setStatus(true);
-
-		return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.OK);
-
+	public ResponseEntity<CartItem> addItemToCart(@RequestBody AddItemRequest req, 
+			@RequestHeader("Authorization") String jwt) throws UserException, ProductException{
+		
+		User user=userService.findUserProfileByJwt(jwt);
+		
+		CartItem item = cartService.addCartItem(user.getId(), req);
+		
+		ApiResponse res= new ApiResponse("Item Added To Cart Successfully",true);
+		
+		return new ResponseEntity<>(item,HttpStatus.ACCEPTED);
+		
 	}
 
 }

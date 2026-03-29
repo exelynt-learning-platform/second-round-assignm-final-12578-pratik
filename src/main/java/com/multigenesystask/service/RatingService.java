@@ -9,8 +9,8 @@ import com.multigenesystask.requests.RatingRequest;
 
 public interface RatingService {
 	
-	public Rating createRating(RatingRequest req, User user) throws ProductException;
+public Rating createRating(RatingRequest req,User user) throws ProductException;
 	
-	public List<Rating> getProductRatings(Long productId);
+	public List<Rating> getProductsRating(Long productId);
 
 }

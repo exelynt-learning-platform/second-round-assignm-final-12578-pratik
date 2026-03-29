@@ -1,10 +1,10 @@
 package com.multigenesystask.service;
 
-import com.multigenesystask.entity.OrderItems;
+import com.multigenesystask.entity.OrderItem;
 
 public interface OrderItemService {
 	
 	
-	public OrderItems createOrderItem(OrderItems orderItem);
+	public OrderItem createOrderItem(OrderItem orderItem);
 
 }

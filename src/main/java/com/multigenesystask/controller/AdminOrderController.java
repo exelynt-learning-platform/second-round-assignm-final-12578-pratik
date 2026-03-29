@@ -15,65 +15,57 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.multigenesystask.entity.Order;
 import com.multigenesystask.exception.OrderException;
+import com.multigenesystask.response.ApiResponse;
 import com.multigenesystask.service.OrderService;
 
 @RestController
 @RequestMapping("/api/admin/orders")
-
 public class AdminOrderController {
-
-	@Autowired
+	
 	private OrderService orderService;
-
+	
 	@GetMapping("/")
-	public ResponseEntity<List<Order>> getAllOrderHandler() {
-		List<Order> orders = orderService.getAllOrders();
-		return new ResponseEntity<List<Order>>(orders, HttpStatus.ACCEPTED);
+	public ResponseEntity<List<Order>> getAllOrdersHandler(){
+		List<Order> orders=orderService.getAllOrders();
+		
+		return new ResponseEntity<>(orders,HttpStatus.ACCEPTED);
 	}
-
+	
 	@PutMapping("/{orderId}/confirmed")
-	public ResponseEntity<Order> cofirmedOrderHandler(@PathVariable Long orderId,
-			@RequestHeader("Authorization") String jwt) throws OrderException {
-
-		Order order = orderService.confirmationOrder(orderId);
-		return new ResponseEntity<Order>(order, HttpStatus.OK);
-
+	public ResponseEntity<Order> ConfirmedOrderHandler(@PathVariable Long orderId,
+			@RequestHeader("Authorization") String jwt) throws OrderException{
+		Order order=orderService.confirmedOrder(orderId);
+		return new ResponseEntity<Order>(order,HttpStatus.ACCEPTED);
 	}
-
+	
 	@PutMapping("/{orderId}/ship")
 	public ResponseEntity<Order> shippedOrderHandler(@PathVariable Long orderId,
-			@RequestHeader("Authorization") String jwt) throws OrderException {
-
-		Order order = orderService.shippedOrder(orderId);
-		return new ResponseEntity<Order>(order, HttpStatus.OK);
-
+			@RequestHeader("Authorization") String jwt) throws OrderException{
+		Order order=orderService.shippedOrder(orderId);
+		return new ResponseEntity<Order>(order,HttpStatus.ACCEPTED);
 	}
-
+	
 	@PutMapping("/{orderId}/deliver")
-	public ResponseEntity<Order> deliverOrderHandler(@PathVariable Long orderId,
-			@RequestHeader("Authorization") String jwt) throws OrderException {
-
-		Order order = orderService.deliveredOrder(orderId);
-		return new ResponseEntity<Order>(order, HttpStatus.OK);
-
+	public ResponseEntity<Order> deliveredOrderHandler(@PathVariable Long orderId,
+			@RequestHeader("Authorization") String jwt) throws OrderException{
+		Order order=orderService.deliveredOrder(orderId);
+		return new ResponseEntity<Order>(order,HttpStatus.ACCEPTED);
 	}
-
+	
 	@PutMapping("/{orderId}/cancel")
-	public ResponseEntity<Order> cancelOrderHandler(@PathVariable Long orderId,
-			@RequestHeader("Authorization") String jwt) throws OrderException {
-
-		Order order = orderService.cancledOrder(orderId);
-		return new ResponseEntity<Order>(order, HttpStatus.OK);
-
+	public ResponseEntity<Order> canceledOrderHandler(@PathVariable Long orderId,
+			@RequestHeader("Authorization") String jwt) throws OrderException{
+		Order order=orderService.cancledOrder(orderId);
+		return new ResponseEntity<Order>(order,HttpStatus.ACCEPTED);
 	}
-
+	
 	@DeleteMapping("/{orderId}/delete")
-	public ResponseEntity<String> deleteOrderHandler(@PathVariable Long orderId,
-			@RequestHeader("Authorization") String jwt) throws OrderException {
-
+	public ResponseEntity<ApiResponse> deleteOrderHandler(@PathVariable Long orderId,
+			@RequestHeader("Authorization") String jwt) throws OrderException{
 		orderService.deleteOrder(orderId);
-
-		return new ResponseEntity<>("Order deleted Successfully", HttpStatus.OK);
+		ApiResponse res=new ApiResponse("Order Deleted Successfully",true);
+		System.out.println("delete method working....");
+		return new ResponseEntity<ApiResponse>(res,HttpStatus.ACCEPTED);
 
 	}
 
