@@ -51,28 +51,28 @@ public class JwtUtils {
 
     public String getUserNameFromJwtToken(String token){
         return Jwts.parser()
-                .verifyWith((SecretKey) key())
+                .verifyWith(key())
                 .build().parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
     }
 
-    private Key key(){
+    private SecretKey key(){
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
     public boolean validateToken(String authToken){
         try {
-            Jwts.parser().verifyWith((SecretKey) key())
+            Jwts.parser().verifyWith(key())
                     .build()
                     .parseSignedClaims(authToken);
             return true;
         } catch (JwtException e) {
-            throw new RuntimeException(e);
+            return false;
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException(e);
+            return false;
         } catch (Exception e){
-            throw new RuntimeException(e);
+            return false;
         }
     }
 }

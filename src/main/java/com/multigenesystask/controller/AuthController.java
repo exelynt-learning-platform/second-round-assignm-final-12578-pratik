@@ -2,6 +2,7 @@ package com.multigenesystask.controller;
 
 import java.time.LocalDateTime;
 
+
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import com.multigenesystask.requests.LoginRequest;
 import com.multigenesystask.requests.RegisterRequest;
 import com.multigenesystask.service.UserServiceImplementation;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -27,7 +29,7 @@ public class AuthController {
 	private UserRepository userRepository;
 
 	@PostMapping("/public/register")
-	public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) throws UserException {
+	public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest) throws UserException {
 		User user = new User();
 		User isEmailExists = userRepository.findByEmail(registerRequest.getEmail());
 		if(isEmailExists != null) {

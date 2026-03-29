@@ -1,12 +1,10 @@
 package com.multigenesystask.service;
 
-import java.awt.event.ItemEvent;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+
 
 import org.springframework.stereotype.Service;
 
@@ -15,10 +13,10 @@ import com.multigenesystask.entity.Cart;
 import com.multigenesystask.entity.CartItem;
 import com.multigenesystask.entity.Order;
 import com.multigenesystask.entity.OrderItem;
+import com.multigenesystask.entity.PaymentDetails;
 import com.multigenesystask.entity.User;
 import com.multigenesystask.exception.OrderException;
 import com.multigenesystask.repository.AddressRepository;
-import com.multigenesystask.repository.CartRepository;
 import com.multigenesystask.repository.OrderItemRepository;
 import com.multigenesystask.repository.OrderRepository;
 import com.multigenesystask.repository.UserRepository;
@@ -33,11 +31,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OrderServiceImplementation implements OrderService{
 	
-	private CartRepository cartRepository;
-	
-	private CartService cartItemService;
-	
-	private ProductService productService;
 	
 	private CartService cartService;
 	private UserRepository userRepository;
@@ -47,7 +40,6 @@ public class OrderServiceImplementation implements OrderService{
 	private AddressRepository addressRepository;
 	
 	
-	private OrderItemService orderItemService;
 	
 	private OrderItemRepository orderItemRepository;
 
@@ -80,6 +72,10 @@ public class OrderServiceImplementation implements OrderService{
 		
 		
 		Order createdOrder=new Order();
+		if(createdOrder.getPaymentDetails() == null) {
+		    createdOrder.setPaymentDetails(new PaymentDetails());
+		}
+
 		createdOrder.setUser(user);
 		createdOrder.setOrderItems(orderItems);
 		createdOrder.setTotalPrice(cart.getTotalPrice());
@@ -107,6 +103,10 @@ public class OrderServiceImplementation implements OrderService{
 	@Override
 	public Order placedOrder(Long orderId) throws OrderException {
 		Order order=findOrderById(orderId);
+		if(order.getPaymentDetails() == null) {
+		    order.setPaymentDetails(new PaymentDetails());
+		}
+
 		order.setOrderStatus(OrderStatus.PLACED);
 		order.getPaymentDetails().setStatus(PaymentStatus.COMPLETED);
 		return order;

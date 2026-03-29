@@ -46,6 +46,10 @@ public class CartItemServiceImplementation implements CartItemService{
 		CartItem item=findCartItemById(id);
 		User user=userService.findUserById(item.getUserId());
 		
+		if(item.getUserId() == null) {
+		    throw new CartItemException("Cart item has no user ID");
+		}
+		
 		
 		if(user.getId().equals(userId)) {
 			
@@ -76,10 +80,13 @@ public class CartItemServiceImplementation implements CartItemService{
 	@Override
 	public void removeCartItem(Long userId,Long cartItemId) throws CartItemException, UserException {
 		
-		System.out.println("userId- "+userId+" cartItemId "+cartItemId);
+		
 		
 		CartItem cartItem=findCartItemById(cartItemId);
 		
+		if(cartItem.getUserId() == null) {
+		    throw new CartItemException("Cart item has no user ID");
+		}
 		User user=userService.findUserById(cartItem.getUserId());
 		User reqUser=userService.findUserById(userId);
 		

@@ -20,9 +20,11 @@ import com.multigenesystask.repository.ProductRepository;
 import com.multigenesystask.requests.CreateProductRequest;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ProductServiceImplementation implements ProductService {
 
 	private ProductRepository productRepository;
@@ -33,39 +35,12 @@ public class ProductServiceImplementation implements ProductService {
 
 public Product createProduct(CreateProductRequest req) {
 		
-		Category topLevel=categoryRepository.findByName(req.getTopLavelCategory());
+		Category topLevel= getOrCreateCategory(req.getTopLavelCategory(), 1, null);
 		
-		if(topLevel==null) {
-			
-			Category topLavelCategory=new Category();
-			topLavelCategory.setName(req.getTopLavelCategory());
-			topLavelCategory.setLevel(1);
-			
-			topLevel= categoryRepository.save(topLavelCategory);
-		}
+		Category secondLevel=getOrCreateCategory(req.getSecondLavelCategory(), 2, topLevel);
 		
-		Category secondLevel=categoryRepository.
-				findByNameAndParant(req.getSecondLavelCategory(),topLevel.getName());
-		if(secondLevel==null) {
-			
-			Category secondLavelCategory=new Category();
-			secondLavelCategory.setName(req.getSecondLavelCategory());
-			secondLavelCategory.setParentCategory(topLevel);
-			secondLavelCategory.setLevel(2);
-			
-			secondLevel= categoryRepository.save(secondLavelCategory);
-		}
-
-		Category thirdLevel=categoryRepository.findByNameAndParant(req.getThirdLavelCategory(),secondLevel.getName());
-		if(thirdLevel==null) {
-			
-			Category thirdLavelCategory=new Category();
-			thirdLavelCategory.setName(req.getThirdLavelCategory());
-			thirdLavelCategory.setParentCategory(secondLevel);
-			thirdLavelCategory.setLevel(3);
-			
-			thirdLevel=categoryRepository.save(thirdLavelCategory);
-		}
+		Category thirdLevel= getOrCreateCategory(req.getThirdLavelCategory(), 3, secondLevel);
+		
 		
 		
 		Product product=new Product();
@@ -84,9 +59,30 @@ public Product createProduct(CreateProductRequest req) {
 		
 		Product savedProduct= productRepository.save(product);
 		
-		System.out.println("products - "+product);
+		log.info("Product is created" + product);
 		
 		return savedProduct;
+	}
+
+	private Category getOrCreateCategory(String categoryName, int level, Category parent) {
+		
+		Category category;
+		if(parent == null) {
+			category = categoryRepository.findByName(categoryName);
+		}else {
+			category = categoryRepository.findByNameAndParant(categoryName, parent.getName());
+		}
+		
+		if(category == null) {
+			category = new Category();
+			category.setName(categoryName);
+			category.setLevel(level);
+			category.setParentCategory(parent);
+			category = categoryRepository.save(category);
+			
+		}
+		
+		return category;
 	}
 
 	@Override
