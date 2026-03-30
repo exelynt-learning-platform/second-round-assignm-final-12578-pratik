@@ -1,6 +1,7 @@
 package com.multigenesystask.service;
 
 import java.time.LocalDateTime;
+
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -13,11 +14,9 @@ import com.multigenesystask.repository.ReviewRepository;
 import com.multigenesystask.requests.ReviewRequest;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
 @Service
 @AllArgsConstructor
-@NoArgsConstructor
 public class ReviewServiceImplementation implements ReviewService{
 	
 	private ReviewRepository reviewRepository;
@@ -41,7 +40,6 @@ public class ReviewServiceImplementation implements ReviewService{
 
 	@Override
 	public List<Review> getAllReview(Long productId) {
-		// TODO Auto-generated method stub
 		return reviewRepository.getAllProductsReview(productId);
 	}
 

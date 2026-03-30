@@ -14,47 +14,47 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 @ControllerAdvice
-public class GlobalException {
+public class GlobalExceptionHandler {
 
 	@ExceptionHandler(UserException.class)
-	public ResponseEntity<ErrorDetails> UserExceptionHandler(UserException ue, WebRequest req){
+	public ResponseEntity<ErrorDetails> userExceptionHandler(UserException ue, WebRequest req){
 		
 		ErrorDetails err= new ErrorDetails(ue.getMessage(),req.getDescription(false),LocalDateTime.now());
 		
-		return new ResponseEntity<ErrorDetails>(err,HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(err,HttpStatus.BAD_REQUEST);
 		
 	}
 	
 	@ExceptionHandler(ProductException.class)
-	public ResponseEntity<ErrorDetails> ProductExceptionHandler(ProductException ue, WebRequest req){
+	public ResponseEntity<ErrorDetails> productExceptionHandler(ProductException ue, WebRequest req){
 		
 		ErrorDetails err= new ErrorDetails(ue.getMessage(),req.getDescription(false),LocalDateTime.now());
 		
-		return new ResponseEntity<ErrorDetails>(err,HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(err,HttpStatus.BAD_REQUEST);
 		
 	}
 	
 	@ExceptionHandler(CartItemException.class)
-	public ResponseEntity<ErrorDetails> CartItemExceptionHandler(CartItemException ue, WebRequest req){
+	public ResponseEntity<ErrorDetails> cartItemExceptionHandler(CartItemException ue, WebRequest req){
 		
 		ErrorDetails err= new ErrorDetails(ue.getMessage(),req.getDescription(false),LocalDateTime.now());
 		
-		return new ResponseEntity<ErrorDetails>(err,HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(err,HttpStatus.BAD_REQUEST);
 		
 	}
 	
 	@ExceptionHandler(OrderException.class)
-	public ResponseEntity<ErrorDetails> OrderExceptionHandler(OrderException ue, WebRequest req){
+	public ResponseEntity<ErrorDetails> orderExceptionHandler(OrderException ue, WebRequest req){
 		
 		ErrorDetails err= new ErrorDetails(ue.getMessage(),req.getDescription(false),LocalDateTime.now());
 		
-		return new ResponseEntity<ErrorDetails>(err,HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(err,HttpStatus.BAD_REQUEST);
 		
 	}
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ErrorDetails> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException me){
 		ErrorDetails err=new ErrorDetails(me.getBindingResult().getFieldError().getDefaultMessage(),"validation error",LocalDateTime.now());
-		return new ResponseEntity<ErrorDetails>(err,HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(err,HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(NoHandlerFoundException.class)
@@ -64,11 +64,21 @@ public class GlobalException {
 
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
+	@ExceptionHandler(RuntimeException.class)
+	public ResponseEntity<ErrorDetails> runtimeExceptionHandler(RuntimeException re, WebRequest req) {
+	    ErrorDetails err = new ErrorDetails(
+	        re.getMessage(),
+	        req.getDescription(false),
+	        LocalDateTime.now()
+	    );
+	    return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 	
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorDetails> otherExceptionHandler(Exception e, WebRequest req){
 		ErrorDetails error=new ErrorDetails(e.getMessage(),req.getDescription(false),LocalDateTime.now());
 		
-		return new ResponseEntity<ErrorDetails>(error,HttpStatus.ACCEPTED);
+		return new ResponseEntity<>(error,HttpStatus.NOT_ACCEPTABLE);
 	}
+	
 }

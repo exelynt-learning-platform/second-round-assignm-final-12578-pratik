@@ -2,12 +2,12 @@ package com.multigenesystask.service;
 
 import java.util.Optional;
 
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.stereotype.Service;
 
 import com.multigenesystask.config.jwt.JwtUtils;
@@ -15,26 +15,28 @@ import com.multigenesystask.entity.User;
 import com.multigenesystask.exception.UserException;
 import com.multigenesystask.repository.UserRepository;
 import com.multigenesystask.requests.LoginRequest;
-import com.multigenesystask.requests.RegisterRequest;
 import com.multigenesystask.response.JwtAuthenticationResponse;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserServiceImplementation implements UserService {
 
-	private PasswordEncoder passwordEncoder;
 
 	private UserRepository userRepository;
 	private JwtUtils jwtUtils;
 	private AuthenticationManager authenticationManager;
 
+	@Override
 	public User registerUser(User user) {
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return userRepository.save(user);
 	}
 
+	@Override
+	
 	public JwtAuthenticationResponse authenticateUser(LoginRequest loginRequest) {
 
 		Authentication authentication = authenticationManager.authenticate(
@@ -48,8 +50,9 @@ public class UserServiceImplementation implements UserService {
 		return new JwtAuthenticationResponse(jwt);
 	}
 
-	public User findUserByEmail(String email) {
-		return userRepository.findByEmail(email);
+	public User findUserByEmail(String email){
+		User user = userRepository.findByEmail(email);
+		return user;
 		}
 
 	@Override
@@ -67,6 +70,11 @@ public class UserServiceImplementation implements UserService {
 		String email = jwtUtils.getUserNameFromJwtToken(jwt);
 
 		User user = userRepository.findByEmail(email);
+		if(user == null) {
+		    log.warn("User not found with email: {}", email);
+
+			throw new UserException("User not found");
+		}
 
 		return user;
 	}

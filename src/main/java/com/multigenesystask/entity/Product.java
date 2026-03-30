@@ -2,16 +2,19 @@ package com.multigenesystask.entity;
 
 import java.time.LocalDateTime;
 
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,7 +34,7 @@ import lombok.Setter;
 public class Product {
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "title")
@@ -59,8 +62,13 @@ public class Product {
     private String color;
 
 
+
     @ElementCollection
-    @Column(name = "sizes")
+    @CollectionTable(
+            name = "product_sizes",               // ✅ Dedicated join table
+            joinColumns = @JoinColumn(name = "product_id")
+        )
+    
     private Set<Size> sizes=new HashSet<>();
 
     @Column(name = "image_url")
@@ -82,4 +90,6 @@ public class Product {
     
     private LocalDateTime createdAt;
 
+    
+    
 }

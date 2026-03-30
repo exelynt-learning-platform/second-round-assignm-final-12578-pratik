@@ -33,8 +33,8 @@ public class RatingController {
 
 	
 	@PostMapping("/create")
-	public ResponseEntity<Rating> createRatingHandler(@RequestBody RatingRequest req,@RequestHeader("Authorization") String jwt) throws UserException, ProductException{
-		User user=userService.findUserProfileByJwt(jwt);
+	public ResponseEntity<Rating> createRatingHandler(@RequestBody RatingRequest req,Principal principal) throws UserException, ProductException{
+		User user=userService.findUserByEmail(principal.getName());
 		Rating rating=ratingServices.createRating(req, user);
 		return new ResponseEntity<>(rating,HttpStatus.ACCEPTED);
 	}

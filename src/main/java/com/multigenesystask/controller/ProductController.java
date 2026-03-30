@@ -2,7 +2,7 @@ package com.multigenesystask.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +16,14 @@ import com.multigenesystask.entity.Product;
 import com.multigenesystask.exception.ProductException;
 import com.multigenesystask.service.ProductService;
 
+import lombok.AllArgsConstructor;
+
 @RestController
 @RequestMapping("/api")
+@AllArgsConstructor
 public class ProductController {
 
-	@Autowired
+
 	private ProductService productService;
 
 	@GetMapping("/products")
@@ -32,7 +35,6 @@ public class ProductController {
 		
 		Page<Product> res= productService.getAllProduct(category, color, size, minPrice, maxPrice, minDiscount, sort,stock,pageNumber,pageSize);
 		
-		System.out.println("complete products");
 		return new ResponseEntity<>(res,HttpStatus.ACCEPTED);
 		
 	}
@@ -44,7 +46,7 @@ public class ProductController {
 		
 		Product product=productService.findProductById(productId);
 		
-		return new ResponseEntity<Product>(product,HttpStatus.ACCEPTED);
+		return new ResponseEntity<>(product,HttpStatus.ACCEPTED);
 	}
 
 	@GetMapping("/products/search")
@@ -52,7 +54,7 @@ public class ProductController {
 		
 		List<Product> products=productService.searchProduct(q);
 		
-		return new ResponseEntity<List<Product>>(products,HttpStatus.OK);
+		return new ResponseEntity<>(products,HttpStatus.OK);
 		
 	}
 

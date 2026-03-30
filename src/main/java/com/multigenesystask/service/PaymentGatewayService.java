@@ -1,5 +1,14 @@
 package com.multigenesystask.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -10,57 +19,107 @@ import com.razorpay.PaymentLink;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class PaymentGatewayService {
 
-    @Value("${razorpay.api.key}")
-    private String apiKey;
+    private final RazorpayClient razorpay;
+    private final String apiSecret;
 
-    @Value("${razorpay.api.secret}")
-    private String apiSecret;
+    @Value("${app.payment.callback-url}")
+    private String callbackUrl;
 
-    private RazorpayClient getClient() throws RazorpayException {
-        return new RazorpayClient(apiKey, apiSecret);
+    // Single shared RazorpayClient — not created per request
+    public PaymentGatewayService(
+            @Value("${razorpay.api.key}") String apiKey,
+            @Value("${razorpay.api.secret}") String apiSecret) throws RazorpayException {
+        this.razorpay = new RazorpayClient(apiKey, apiSecret);
+        this.apiSecret = apiSecret; // stored for HMAC signature verification
     }
 
     public PaymentLink createPaymentLink(Order order) throws RazorpayException {
 
-        RazorpayClient razorpay = getClient();
+        // Safe paise conversion — avoids floating-point rounding errors
+        long amount = BigDecimal.valueOf(order.getTotalPrice())
+                .multiply(BigDecimal.valueOf(100))
+                .setScale(0, RoundingMode.HALF_UP)
+                .longValue();
 
         JSONObject paymentLinkRequest = new JSONObject();
-        paymentLinkRequest.put("amount", order.getTotalPrice() * 100);
+        paymentLinkRequest.put("amount", amount);
         paymentLinkRequest.put("currency", "INR");
+        
+        paymentLinkRequest.put("reference_id", order.getId().toString());
 
         JSONObject customer = new JSONObject();
         customer.put("name", order.getUser().getFirstName() + " " + order.getUser().getLastName());
         customer.put("contact", order.getUser().getMobile());
         customer.put("email", order.getUser().getEmail());
-
         paymentLinkRequest.put("customer", customer);
 
         JSONObject notify = new JSONObject();
         notify.put("sms", true);
         notify.put("email", true);
-
         paymentLinkRequest.put("notify", notify);
+
         paymentLinkRequest.put("reminder_enable", true);
 
-        paymentLinkRequest.put(
-            "callback_url",
-            "http://localhost:4200/payment-success?order_id=" + order.getId()
-        );
+        // Callback URL from config — not hardcoded
+        paymentLinkRequest.put("callback_url", callbackUrl);
         paymentLinkRequest.put("callback_method", "get");
 
         return razorpay.paymentLink.create(paymentLinkRequest);
     }
 
+    /**
+     * Verifies the Razorpay callback signature using HMAC-SHA256.
+     *
+     * Razorpay signs: paymentLinkId + "|" + referenceId + "|" + paymentId
+     * using your API secret. If the computed hash matches razorpaySignature,
+     * the request genuinely came from Razorpay.
+     *
+     * @return true if signature is valid, false if tampered or fake
+     */
+    public boolean verifyPaymentSignature(
+            String paymentLinkId,
+            String referenceId,
+            String paymentLinkStatus,
+            String paymentId,
+            String razorpaySignature) {
+
+        try {
+            String payload = paymentLinkId + "|" + referenceId + "|" + paymentLinkStatus + "|" + paymentId;
+
+            Mac mac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(
+                    apiSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            mac.init(secretKey);
+
+            byte[] hash = mac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
+
+            // Convert byte array to hex string
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+
+            return hexString.toString().equals(razorpaySignature);
+
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            log.error("Razorpay signature verification failed: {}", e.getMessage());
+            return false;
+        }
+    }
+
     public Payment fetchPayment(String paymentId) throws RazorpayException {
-        RazorpayClient razorpay = getClient();
         return razorpay.payments.fetch(paymentId);
     }
 
     public PaymentLink fetchPaymentLink(String paymentLinkId) throws RazorpayException {
-        RazorpayClient razorpay = getClient();
         return razorpay.paymentLink.fetch(paymentLinkId);
     }
 }

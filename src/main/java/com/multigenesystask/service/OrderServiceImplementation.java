@@ -1,10 +1,10 @@
 package com.multigenesystask.service;
 
 import java.time.LocalDateTime;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 
 import org.springframework.stereotype.Service;
 
@@ -23,152 +23,151 @@ import com.multigenesystask.repository.UserRepository;
 import com.multigenesystask.user.domain.OrderStatus;
 import com.multigenesystask.user.domain.PaymentStatus;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @AllArgsConstructor
-@NoArgsConstructor
-public class OrderServiceImplementation implements OrderService{
-	
-	
+@Slf4j
+public class OrderServiceImplementation implements OrderService {
+
 	private CartService cartService;
 	private UserRepository userRepository;
-	
+
 	private OrderRepository orderRepository;
-	
+
 	private AddressRepository addressRepository;
-	
-	
-	
+
 	private OrderItemRepository orderItemRepository;
 
 	@Override
+	@Transactional
 	public Order createOrder(User user, Address shippAddress) {
-		
+
 		shippAddress.setUser(user);
-		Address address= addressRepository.save(shippAddress);
+		Address address = addressRepository.save(shippAddress);
 		user.getAddresses().add(address);
 		userRepository.save(user);
-		
-		Cart cart=cartService.findUserCart(user.getId());
-		List<OrderItem> orderItems=new ArrayList<>();
-		
-		for(CartItem item: cart.getCartItems()) {
-			OrderItem orderItem=new OrderItem();
-			
+
+		Cart cart = cartService.findUserCart(user.getId());
+		List<OrderItem> orderItems = new ArrayList<>();
+
+		for (CartItem item : cart.getCartItems()) {
+			OrderItem orderItem = new OrderItem();
+
 			orderItem.setPrice(item.getPrice());
 			orderItem.setProduct(item.getProduct());
 			orderItem.setQuantity(item.getQuantity());
 			orderItem.setSize(item.getSize());
 			orderItem.setUserId(item.getUserId());
 			orderItem.setDiscountedPrice(item.getDiscountedPrice());
-			
-			
-			OrderItem createdOrderItem=orderItemRepository.save(orderItem);
-			
+
+			OrderItem createdOrderItem = orderItemRepository.save(orderItem);
+
 			orderItems.add(createdOrderItem);
 		}
-		
-		
-		Order createdOrder=new Order();
-		if(createdOrder.getPaymentDetails() == null) {
-		    createdOrder.setPaymentDetails(new PaymentDetails());
+
+		Order createdOrder = new Order();
+		if (createdOrder.getPaymentDetails() == null) {
+			createdOrder.setPaymentDetails(new PaymentDetails());
 		}
 
 		createdOrder.setUser(user);
 		createdOrder.setOrderItems(orderItems);
 		createdOrder.setTotalPrice(cart.getTotalPrice());
 		createdOrder.setTotalDiscountedPrice(cart.getTotalDiscountedPrice());
-		createdOrder.setDiscount(cart.getDiscounte());
+		createdOrder.setDiscount(cart.getDiscount());
 		createdOrder.setTotalItem(cart.getTotalItem());
-		
+
 		createdOrder.setShippingAddress(address);
 		createdOrder.setOrderDate(LocalDateTime.now());
 		createdOrder.setOrderStatus(OrderStatus.PENDING);
 		createdOrder.getPaymentDetails().setStatus(PaymentStatus.PENDING);
 		createdOrder.setCreatedAt(LocalDateTime.now());
-		
-		Order savedOrder=orderRepository.save(createdOrder);
-		
-		for(OrderItem item:orderItems) {
+
+		Order savedOrder = orderRepository.save(createdOrder);
+
+		for (OrderItem item : orderItems) {
 			item.setOrder(savedOrder);
 			orderItemRepository.save(item);
 		}
-		
+
 		return savedOrder;
-		
+
 	}
 
 	@Override
 	public Order placedOrder(Long orderId) throws OrderException {
-		Order order=findOrderById(orderId);
-		if(order.getPaymentDetails() == null) {
-		    order.setPaymentDetails(new PaymentDetails());
+		Order order = findOrderById(orderId);
+		if (order.getPaymentDetails() == null) {
+			order.setPaymentDetails(new PaymentDetails());
 		}
 
 		order.setOrderStatus(OrderStatus.PLACED);
 		order.getPaymentDetails().setStatus(PaymentStatus.COMPLETED);
-		return order;
-	}
-
-	@Override
-	public Order confirmedOrder(Long orderId) throws OrderException {
-		Order order=findOrderById(orderId);
-		order.setOrderStatus(OrderStatus.CONFIRMED);
-		
 		
 		return orderRepository.save(order);
 	}
 
 	@Override
+	public Order confirmedOrder(Long orderId) throws OrderException {
+		Order order = findOrderById(orderId);
+		order.setOrderStatus(OrderStatus.CONFIRMED);
+
+		return orderRepository.save(order);
+	}
+
+	@Override
 	public Order shippedOrder(Long orderId) throws OrderException {
-		Order order=findOrderById(orderId);
+		Order order = findOrderById(orderId);
 		order.setOrderStatus(OrderStatus.SHIPPED);
 		return orderRepository.save(order);
 	}
 
 	@Override
 	public Order deliveredOrder(Long orderId) throws OrderException {
-		Order order=findOrderById(orderId);
+		Order order = findOrderById(orderId);
 		order.setOrderStatus(OrderStatus.DELIVERED);
 		return orderRepository.save(order);
 	}
 
 	@Override
 	public Order cancledOrder(Long orderId) throws OrderException {
-		Order order=findOrderById(orderId);
+		Order order = findOrderById(orderId);
 		order.setOrderStatus(OrderStatus.CANCELLED);
 		return orderRepository.save(order);
 	}
 
 	@Override
 	public Order findOrderById(Long orderId) throws OrderException {
-		Optional<Order> opt=orderRepository.findById(orderId);
-		
-		if(opt.isPresent()) {
+		Optional<Order> opt = orderRepository.findById(orderId);
+
+		if (opt.isPresent()) {
 			return opt.get();
 		}
-		throw new OrderException("order not exist with id "+orderId);
+		throw new OrderException("order not exist with id " + orderId);
 	}
 
 	@Override
-	public List<Order> usersOrderHistory(Long userId) {
-		List<Order> orders=orderRepository.getUsersOrders(userId);
+	public List<Order> usersOrderHistory(Long userId) throws OrderException {
+		List<Order> orders = orderRepository.getUsersOrders(userId);
+		
 		return orders;
 	}
 
 	@Override
 	public List<Order> getAllOrders() {
-		
+
 		return orderRepository.findAllByOrderByCreatedAtDesc();
 	}
 
 	@Override
 	public void deleteOrder(Long orderId) throws OrderException {
-		Order order =findOrderById(orderId);
-		
+
 		orderRepository.deleteById(orderId);
 		
+		log.info("delete order "+ orderId);
+
 	}
 }

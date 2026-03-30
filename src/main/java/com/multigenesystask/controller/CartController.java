@@ -2,13 +2,12 @@ package com.multigenesystask.controller;
 
 import java.security.Principal;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,41 +17,43 @@ import com.multigenesystask.entity.User;
 import com.multigenesystask.exception.ProductException;
 import com.multigenesystask.exception.UserException;
 import com.multigenesystask.requests.AddItemRequest;
-import com.multigenesystask.response.ApiResponse;
 import com.multigenesystask.service.CartService;
 import com.multigenesystask.service.UserService;
 
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("/api/cart")
+@AllArgsConstructor
+@Slf4j
 public class CartController {
 
-	@Autowired
+	
 	private CartService cartService;
 
-	@Autowired
+
 	private UserService userService;
 
-	@GetMapping("/")
-	public ResponseEntity<Cart> findUserCartHandler(@RequestHeader("Authorization") String jwt) throws UserException{
+	@GetMapping
+	public ResponseEntity<Cart> findUserCartHandler(Principal principal) throws UserException{
 		
-		User user=userService.findUserProfileByJwt(jwt);
-		
+		User user=userService.findUserByEmail(principal.getName());
 		Cart cart=cartService.findUserCart(user.getId());
 		
-		System.out.println("cart - "+cart.getUser().getEmail());
-		
-		return new ResponseEntity<Cart>(cart,HttpStatus.OK);
+		return new ResponseEntity<>(cart,HttpStatus.OK);
 	}
 	
 	@PutMapping("/add")
 	public ResponseEntity<CartItem> addItemToCart(@RequestBody AddItemRequest req, 
-			@RequestHeader("Authorization") String jwt) throws UserException, ProductException{
+			Principal principal) throws UserException, ProductException{
 		
-		User user=userService.findUserProfileByJwt(jwt);
+		User user=userService.findUserByEmail(principal.getName());
 		
 		CartItem item = cartService.addCartItem(user.getId(), req);
 		
-		ApiResponse res= new ApiResponse("Item Added To Cart Successfully",true);
+		
+		log.info("Item Added To Cart Successfully");
 		
 		return new ResponseEntity<>(item,HttpStatus.ACCEPTED);
 		

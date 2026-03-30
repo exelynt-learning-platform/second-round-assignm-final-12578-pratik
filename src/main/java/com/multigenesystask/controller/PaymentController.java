@@ -1,150 +1,113 @@
 package com.multigenesystask.controller;
 
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.view.RedirectView;
 
 import com.multigenesystask.entity.Order;
+import com.multigenesystask.entity.PaymentDetails;
 import com.multigenesystask.exception.OrderException;
-import com.multigenesystask.exception.UserException;
 import com.multigenesystask.repository.OrderRepository;
 import com.multigenesystask.response.ApiResponse;
 import com.multigenesystask.response.PaymentLinkResponse;
 import com.multigenesystask.service.OrderService;
-import com.multigenesystask.service.UserService;
+import com.multigenesystask.service.PaymentGatewayService;
 import com.multigenesystask.user.domain.OrderStatus;
 import com.multigenesystask.user.domain.PaymentStatus;
-import com.razorpay.Payment;
 import com.razorpay.PaymentLink;
-import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 
 @RestController
 @RequestMapping("/api")
 public class PaymentController {
-	
-	   @Value("${razorpay.api.key}")
-	    private String apiKey;
 
-	    @Value("${razorpay.api.secret}")
-	    private String apiSecret;
-	
-	private OrderService orderService;
-	private UserService userService;
-	private OrderRepository orderRepository;
-	
-	public PaymentController(OrderService orderService,UserService userService,OrderRepository orderRepository) {
-		this.orderService=orderService;
-		this.userService=userService;
-		this.orderRepository=orderRepository;
+	private final PaymentGatewayService paymentGatewayService;
+	private final OrderService orderService;
+	private final OrderRepository orderRepository;
+
+	// Explicit constructor injection — no Lombok DI conflict
+	public PaymentController(PaymentGatewayService paymentGatewayService, OrderService orderService,
+			OrderRepository orderRepository) {
+		this.paymentGatewayService = paymentGatewayService;
+		this.orderService = orderService;
+		this.orderRepository = orderRepository;
 	}
-	
+
+	/**
+	 * Creates a Razorpay payment link for the given order. Stores the Razorpay
+	 * order_id back on the order for later correlation.
+	 */
 	@PostMapping("/payments/{orderId}")
-	public ResponseEntity<PaymentLinkResponse>createPaymentLink(@PathVariable Long orderId,
-			@RequestHeader("Authorization")String jwt) 
-					throws RazorpayException, UserException, OrderException{
-		
-		Order order=orderService.findOrderById(orderId);
-		 try {
-		      // Instantiate a Razorpay client with your key ID and secret
-		      RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
+	public ResponseEntity<PaymentLinkResponse> createPaymentLink(@PathVariable Long orderId)
+			throws RazorpayException, OrderException {
 
-		      // Create a JSON object with the payment link request parameters
-		      JSONObject paymentLinkRequest = new JSONObject();
-		      paymentLinkRequest.put("amount",order.getTotalPrice()* 100);
-		      paymentLinkRequest.put("currency","INR");    
-//		      paymentLinkRequest.put("expire_by",1691097057);
-//		      paymentLinkRequest.put("reference_id",order.getId().toString());
-		     
+		Order order = orderService.findOrderById(orderId);
 
-		      // Create a JSON object with the customer details
-		      JSONObject customer = new JSONObject();
-		      customer.put("name",order.getUser().getFirstName()+" "+order.getUser().getLastName());
-		      customer.put("contact",order.getUser().getMobile());
-		      customer.put("email",order.getUser().getEmail());
-		      paymentLinkRequest.put("customer",customer);
+		PaymentLink payment = paymentGatewayService.createPaymentLink(order);
 
-		      // Create a JSON object with the notification settings
-		      JSONObject notify = new JSONObject();
-		      notify.put("sms",true);
-		      notify.put("email",true);
-		      paymentLinkRequest.put("notify",notify);
+		String paymentLinkId = payment.get("id");
+		String paymentLinkUrl = payment.get("short_url");
 
-		      // Set the reminder settings
-		      paymentLinkRequest.put("reminder_enable",true);
+		// Fetch back the Razorpay order_id and persist it on our order
+		order.setOrderId(paymentLinkId);
+		orderRepository.save(order);
 
-		      // Set the callback URL and method
-		      paymentLinkRequest.put("callback_url","http://localhost:4200/payment-success?order_id="+orderId);
-		      paymentLinkRequest.put("callback_method","get");
-
-		      // Create the payment link using the paymentLink.create() method
-		      PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
-		      
-		      String paymentLinkId = payment.get("id");
-		      String paymentLinkUrl = payment.get("short_url");
-		      
-		      PaymentLinkResponse res=new PaymentLinkResponse(paymentLinkUrl,paymentLinkId);
-		      
-		      PaymentLink fetchedPayment = razorpay.paymentLink.fetch(paymentLinkId);
-		      
-		      order.setOrderId(fetchedPayment.get("order_id"));
-		      orderRepository.save(order);
-		      
-		   // Print the payment link ID and URL
-		      System.out.println("Payment link ID: " + paymentLinkId);
-		      System.out.println("Payment link URL: " + paymentLinkUrl);
-		      System.out.println("Order Id : "+fetchedPayment.get("order_id")+fetchedPayment);
-		      
-		      return new ResponseEntity<PaymentLinkResponse>(res,HttpStatus.ACCEPTED);
-		      
-		    } catch (RazorpayException e) {
-		    	
-		      System.out.println("Error creating payment link: " + e.getMessage());
-		      throw new RazorpayException(e.getMessage());
-		    }
-		
-		
-//		order_id
+		PaymentLinkResponse res = new PaymentLinkResponse(paymentLinkUrl, paymentLinkId);
+		return new ResponseEntity<>(res, HttpStatus.ACCEPTED);
 	}
-	
-  @GetMapping("/payments")
-  public ResponseEntity<ApiResponse> redirect(@RequestParam(name="payment_id") String paymentId,@RequestParam("order_id")Long orderId) throws RazorpayException, OrderException {
-	  RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
-	  Order order =orderService.findOrderById(orderId);
-	
-	  try {
-		
-		
-		Payment payment = razorpay.payments.fetch(paymentId);
-		System.out.println("payment details --- "+payment+payment.get("status"));
-		
-		if(payment.get("status").equals("captured")) {
-			System.out.println("payment details --- "+payment+payment.get("status"));
-		  
-			order.getPaymentDetails().setPayementId(paymentId);
-			order.getPaymentDetails().setStatus(PaymentStatus.COMPLETED);
+
+	/**
+	 * Razorpay callback endpoint.
+	 *
+	 * Razorpay redirects here after payment with these signed query params:
+	 * razorpay_payment_id, razorpay_payment_link_id,
+	 * razorpay_payment_link_reference_id, razorpay_payment_link_status,
+	 * razorpay_signature
+	 *
+	 * The signature is verified with HMAC-SHA256 using our API secret BEFORE
+	 * touching the database. This prevents anyone from faking a payment by calling
+	 * this URL directly with a fake payment_id.
+	 */
+	@GetMapping("/payments")
+	public ResponseEntity<ApiResponse> redirect(@RequestParam("razorpay_payment_id") String paymentId,
+			@RequestParam("razorpay_payment_link_id") String paymentLinkId,
+			@RequestParam("razorpay_payment_link_reference_id") String referenceId,
+			@RequestParam("razorpay_payment_link_status") String paymentLinkStatus,
+			@RequestParam("razorpay_signature") String razorpaySignature) throws RazorpayException, OrderException {
+
+		// Step 1: Verify signature FIRST — reject immediately if invalid
+		boolean isValid = paymentGatewayService.verifyPaymentSignature(paymentLinkId, referenceId, paymentLinkStatus,
+				paymentId, razorpaySignature);
+
+		if (!isValid) {
+			return new ResponseEntity<>(new ApiResponse("Invalid payment signature. Request rejected.", false),
+					HttpStatus.BAD_REQUEST);
+		}
+
+		// Step 2: Only trust and process after signature is confirmed
+		Order order = orderRepository.findByOrderId(paymentLinkId)
+				.orElseThrow(() -> new OrderException("Order not found for payment link: " + paymentLinkId));
+
+		if ("paid".equals(paymentLinkStatus)) {
+			PaymentDetails pd = order.getPaymentDetails();
+			pd.setPaymentId(paymentId);
+			pd.setStatus(PaymentStatus.COMPLETED);
+			pd.setRazorpayPaymentLinkId(paymentLinkId);
+			pd.setRazorpayPaymentLinkReferenceId(referenceId);
+			pd.setRazorpayPaymentLinkStatus(paymentLinkStatus);
+			pd.setRazorpayPaymentId(paymentId);
+			pd.setPaymentMethod("RAZORPAY");
+
 			order.setOrderStatus(OrderStatus.PLACED);
-//			order.setOrderItems(order.getOrderItems());
-			System.out.println(order.getPaymentDetails().getStatus()+"payment status ");
 			orderRepository.save(order);
 		}
-		ApiResponse res=new ApiResponse("your order get placed", true);
-	      return new ResponseEntity<ApiResponse>(res,HttpStatus.OK);
-	      
-	} catch (Exception e) {
-		System.out.println("errrr payment -------- ");
-		throw new RazorpayException(e.getMessage());
+
+		ApiResponse res = new ApiResponse("Your order has been placed successfully", true);
+		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
-
-  }
-
 }

@@ -14,6 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
+@Embeddable
 public class PaymentDetails {
 
 	private String paymentMethod;
@@ -21,7 +22,7 @@ public class PaymentDetails {
 	@Enumerated(EnumType.STRING)
 	private PaymentStatus status;
 
-	private String payementId;
+	private String paymentId;
 
 	private String razorpayPaymentLinkId;
 
@@ -29,6 +30,6 @@ public class PaymentDetails {
 
 	private String razorpayPaymentLinkStatus;
 
-	private String razorpayPaymentId​;
+	private String razorpayPaymentId;
 
 }

@@ -1,6 +1,7 @@
 package com.multigenesystask.service;
 
 import java.time.LocalDateTime;
+
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -13,11 +14,10 @@ import com.multigenesystask.repository.RatingRepository;
 import com.multigenesystask.requests.RatingRequest;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Service
+
 public class RatingServiceImplementation implements RatingService{
 
 	private RatingRepository ratingRepository;
@@ -39,7 +39,6 @@ public class RatingServiceImplementation implements RatingService{
 
 	@Override
 	public List<Rating> getProductsRating(Long productId) {
-		// TODO Auto-generated method stub
 		return ratingRepository.getAllProductsRating(productId);
 	}
 }

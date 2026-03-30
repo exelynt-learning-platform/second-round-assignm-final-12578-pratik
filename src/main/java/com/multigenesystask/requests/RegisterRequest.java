@@ -1,5 +1,11 @@
 package com.multigenesystask.requests;
 
+import java.time.LocalDateTime;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.multigenesystask.entity.User;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -13,6 +19,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterRequest {
+	
+	
 
     @NotBlank(message = "First name is required")
     @Size(min = 2, max = 30, message = "First name must be between 2 and 30 characters")
@@ -40,4 +48,18 @@ public class RegisterRequest {
     @NotBlank(message = "Mobile number is required")
     @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid mobile number")
     private String mobile;
+    
+    
+    
+    public User convertToUser(PasswordEncoder passwordEncoder) {
+        User user = new User();
+        user.setFirstName(this.firstName);
+        user.setLastName(this.lastName);
+        user.setEmail(this.email);
+        user.setPassword(passwordEncoder.encode(this.password));
+        user.setRole(this.role);
+        user.setMobile(this.mobile);
+        user.setCreatedAt(LocalDateTime.now());
+        return user;
+    }
 }

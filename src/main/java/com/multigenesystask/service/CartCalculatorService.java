@@ -14,14 +14,14 @@ public class CartCalculatorService {
 		int totalDiscountedPrice = 0;
 		int totalItem = 0;
 		for(CartItem item: cart.getCartItems()) {
-			totalPrice =totalPrice +  item.getPrice();
-			totalDiscountedPrice = totalDiscountedPrice + item.getDiscountedPrice();
+			totalPrice += item.getPrice() != null ? item.getPrice() : 0;
+			totalDiscountedPrice += item.getDiscountedPrice() != null ? item.getDiscountedPrice() : 0;
 			totalItem = totalItem + item.getQuantity();
 			
 		}
 		cart.setTotalPrice(totalPrice);
 		cart.setTotalDiscountedPrice(totalDiscountedPrice);
-		cart.setDiscounte(totalPrice - totalDiscountedPrice);
+		cart.setDiscount(totalPrice - totalDiscountedPrice);
 		cart.setTotalItem(totalItem);
 	}
 }

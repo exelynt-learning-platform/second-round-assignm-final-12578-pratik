@@ -25,11 +25,9 @@ public class Category {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@NotNull
-	@Size(max = 50)
-	private String name;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
+	private String name;
+	@ManyToOne
 	@JoinColumn(name = "parent_category_id")
 	private Category parentCategory;
 	
