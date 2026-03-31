@@ -1,5 +1,7 @@
 package com.multigenesystask.service;
 
+import com.multigenesystask.exception.CartItemException;
+import com.multigenesystask.exception.UserException;
 import org.springframework.stereotype.Service;
 
 
@@ -33,11 +35,11 @@ public class CartServiceImplementation implements CartService {
 	
 	
 	 // ── private helper ────────────────────────────────────────────────────────
-    private Cart getOrCreateCart(Long userId) {
+    private Cart getOrCreateCart(Long userId) throws UserException {
         Cart cart = cartRepository.findByUserId(userId);
         if (cart == null) {
             User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+                    .orElseThrow(() -> new UserException("User not found: " + userId));
             cart = new Cart();
             cart.setUser(user);
             cart.setCartItems(new HashSet<>());
@@ -64,7 +66,7 @@ public class CartServiceImplementation implements CartService {
 		return cartRepository.save(cart);
 	}
 
-	public Cart findUserCart(Long userId)  {
+	public Cart findUserCart(Long userId) throws UserException {
 		 Cart cart = getOrCreateCart(userId); 
 		
 		    double oldPrice        = cart.getTotalPrice();
@@ -81,7 +83,7 @@ public class CartServiceImplementation implements CartService {
 	}
 
 	@Override
-	public CartItem addCartItem(Long userId, AddItemRequest req) throws ProductException {
+	public CartItem addCartItem(Long userId, AddItemRequest req) throws ProductException, CartItemException, UserException {
 		 Cart cart = getOrCreateCart(userId); 
 		Product product = productService.findProductById(req.getProductId());
 

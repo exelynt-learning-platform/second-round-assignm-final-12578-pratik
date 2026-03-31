@@ -6,10 +6,11 @@ import com.multigenesystask.entity.Address;
 import com.multigenesystask.entity.Order;
 import com.multigenesystask.entity.User;
 import com.multigenesystask.exception.OrderException;
+import com.multigenesystask.exception.UserException;
 
 public interface OrderService {
 	
-	public Order createOrder(User user, Address shippingAdress)throws OrderException;
+	public Order createOrder(User user, Address shippingAdress) throws OrderException, UserException;
 	
 	public Order findOrderById(Long orderId) throws OrderException;
 	

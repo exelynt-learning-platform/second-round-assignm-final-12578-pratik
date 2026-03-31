@@ -44,7 +44,7 @@ public class OrderServiceImplementation implements OrderService {
 
 	@Override
 	@Transactional
-	public Order createOrder(User user, Address shippingAddress) throws OrderException {
+	public Order createOrder(User user, Address shippingAddress) throws OrderException, UserException {
 
 		shippingAddress.setUser(user);
 		Address address = addressRepository.save(shippingAddress);

@@ -3,6 +3,7 @@ package com.multigenesystask.controller;
 import java.security.Principal;
 
 
+import com.multigenesystask.exception.CartItemException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -51,7 +52,7 @@ public class CartController {
 	
 	@PutMapping("/add")
 	public ResponseEntity<CartItem> addItemToCart(@RequestBody AddItemRequest req,
-                                                  @AuthenticationPrincipal UserDetails userDetails) throws UserException, ProductException{
+                                                  @AuthenticationPrincipal UserDetails userDetails) throws UserException, ProductException, CartItemException {
 		
 		log.info("Add to cart request for user: {}", userDetails.getUsername());
 		
