@@ -3,6 +3,7 @@ package com.multigenesystask.config;
 import java.util.List;
 
 
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +27,7 @@ import com.multigenesystask.config.jwt.JwtAuthenticationFilter;
 
 import lombok.AllArgsConstructor;
 
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -34,11 +36,7 @@ public class AppConfig {
 
     private UserDetailsService userDetailsService;
 
-    // ✅ JWT Filter
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter();
-    }
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     // ✅ Password Encoder
     @Bean
@@ -106,10 +104,10 @@ public class AppConfig {
 
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ ENABLE CORS
-            .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+            .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/payments").permitAll() 
@@ -119,7 +117,7 @@ public class AppConfig {
 
         http.authenticationProvider(authenticationProvider());
 
-        http.addFilterBefore(jwtAuthenticationFilter(),
+        http.addFilterBefore(jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

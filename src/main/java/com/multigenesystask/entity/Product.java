@@ -3,6 +3,7 @@ package com.multigenesystask.entity;
 import java.time.LocalDateTime;
 
 
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,7 +15,6 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,7 +34,7 @@ import lombok.Setter;
 public class Product {
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(name = "title")
@@ -43,17 +43,17 @@ public class Product {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "price")
-    private int price;
+    @Column(name = "discount_persent", nullable = false, columnDefinition = "int default 0")
+    private Integer discountPersent;
 
-    @Column(name = "discounted_price")
-    private int discountedPrice;
-    
-    @Column(name="discount_persent")
-    private int discountPersent;
+    @Column(name = "price", nullable = false, columnDefinition = "int default 0")
+    private Integer price;
 
-    @Column(name = "quantity")
-    private int quantity;
+    @Column(name = "discounted_price", nullable = false, columnDefinition = "int default 0")
+    private Integer discountedPrice;
+
+    @Column(name = "quantity", nullable = false, columnDefinition = "int default 0")
+    private Integer quantity;
 
     @Column(name = "brand")
     private String brand;

@@ -93,18 +93,28 @@ public class PaymentController {
 		Order order = orderRepository.findByOrderId(paymentLinkId)
 				.orElseThrow(() -> new OrderException("Order not found for payment link: " + paymentLinkId));
 
-		if ("paid".equals(paymentLinkStatus)) {
-			PaymentDetails pd = order.getPaymentDetails();
-			pd.setPaymentId(paymentId);
-			pd.setStatus(PaymentStatus.COMPLETED);
-			pd.setRazorpayPaymentLinkId(paymentLinkId);
-			pd.setRazorpayPaymentLinkReferenceId(referenceId);
-			pd.setRazorpayPaymentLinkStatus(paymentLinkStatus);
-			pd.setRazorpayPaymentId(paymentId);
-			pd.setPaymentMethod("RAZORPAY");
+		if ("paid".equals(paymentLinkStatus) && paymentId != null && !paymentId.isEmpty()) {
 
-			order.setOrderStatus(OrderStatus.PLACED);
-			orderRepository.save(order);
+			if (order.getPaymentDetails() == null) {
+				order.setPaymentDetails(new PaymentDetails());
+			}
+
+			PaymentDetails pd = order.getPaymentDetails();
+
+			if (pd.getStatus() != PaymentStatus.COMPLETED) {
+
+				pd.setPaymentId(paymentId);
+				pd.setStatus(PaymentStatus.COMPLETED);
+				pd.setRazorpayPaymentLinkId(paymentLinkId);
+				pd.setRazorpayPaymentLinkReferenceId(referenceId);
+				pd.setRazorpayPaymentLinkStatus(paymentLinkStatus);
+				pd.setRazorpayPaymentId(paymentId);
+				pd.setPaymentMethod("RAZORPAY");
+
+				order.setOrderStatus(OrderStatus.PLACED);
+
+				orderRepository.save(order);
+			}
 		}
 
 		ApiResponse res = new ApiResponse("Your order has been placed successfully", true);

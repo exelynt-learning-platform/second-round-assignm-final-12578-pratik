@@ -1,13 +1,10 @@
 package com.multigenesystask.service;
 
 import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -57,7 +54,7 @@ public class ProductServiceImplementation implements ProductService {
 
 		Product savedProduct = productRepository.save(product);
 
-		log.info("Product is created" + product);
+		log.info("Product is created {} ", savedProduct.getId());
 
 		return savedProduct;
 	}

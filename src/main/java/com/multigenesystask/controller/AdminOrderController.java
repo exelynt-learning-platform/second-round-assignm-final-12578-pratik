@@ -55,7 +55,7 @@ public class AdminOrderController {
 	
 	@PutMapping("/{orderId}/cancel")
 	public ResponseEntity<Order> canceledOrderHandler(@PathVariable Long orderId) throws OrderException{
-		Order order=orderService.cancledOrder(orderId);
+		Order order=orderService.cancleOrder(orderId);
 		return new ResponseEntity<>(order,HttpStatus.ACCEPTED);
 	}
 	

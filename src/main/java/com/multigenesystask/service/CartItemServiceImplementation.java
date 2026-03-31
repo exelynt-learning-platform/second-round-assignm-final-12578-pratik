@@ -34,28 +34,32 @@ public class CartItemServiceImplementation implements CartItemService {
 	}
 
 	@Override
-	public CartItem updateCartItem(Long userId, Long id, CartItem cartItem) throws CartItemException, UserException {
+	public CartItem updateCartItem(Long userId, Long id, CartItem cartItem)
+	        throws CartItemException, UserException {
 
-		CartItem item = findCartItemById(id);
-		if (item.getUserId() == null) {
-			throw new CartItemException("Cart item has no user ID");
-		}
-		User user = userService.findUserById(item.getUserId());
+	    CartItem item = findCartItemById(id);
 
-		
+	    if (item.getUserId() == null) {
+	        throw new CartItemException("Cart item has no user ID");
+	    }
+	    if (!userId.equals(item.getUserId())) {
+	        throw new CartItemException("You can't update another user's cart item");
+	    }
 
-		if (user.getId().equals(userId)) {
+	    Product product = item.getProduct();
+	    if (product == null) {
+	        throw new CartItemException("Cart item has no associated product");
+	    }
 
-			item.setQuantity(cartItem.getQuantity());
-			item.setPrice(item.getQuantity() * item.getProduct().getPrice());
-			item.setDiscountedPrice(item.getQuantity() * item.getProduct().getDiscountedPrice());
+	    int unitPrice      = product.getPrice()           != null ? product.getPrice()           : 0;
+	    int unitDiscounted = product.getDiscountedPrice()  != null ? product.getDiscountedPrice() : 0;
+	    int quantity       = cartItem.getQuantity();
 
-			return cartItemRepository.save(item);
+	    item.setQuantity(quantity);
+	    item.setPrice(quantity * unitPrice);
+	    item.setDiscountedPrice(quantity * unitDiscounted);
 
-		} else {
-			throw new CartItemException("You can't update  another user's cart item");
-		}
-
+	    return cartItemRepository.save(item);
 	}
 
 	@Override

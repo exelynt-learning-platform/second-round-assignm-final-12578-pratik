@@ -21,15 +21,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.multigenesystask.service.CustomUserDetailsService;
 
 import java.io.IOException;
-@Component
 
 @Slf4j
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
  
 	@Autowired
     private JwtUtils jwtTokenProvider;
-
-    @Autowired
+	
+	@Autowired
     private CustomUserDetailsService userDetailsService;
 
     @Override

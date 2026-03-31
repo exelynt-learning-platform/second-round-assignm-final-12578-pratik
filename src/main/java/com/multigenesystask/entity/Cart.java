@@ -36,13 +36,15 @@ public class Cart {
 	private Set<CartItem> cartItems = new HashSet<>();
 
 	@Column(name = "total_price")
-	private double totalPrice;
+	private int totalPrice;
 
-	@Column(name = "total_item")
-	private int totalItem;
+	  @Column(name = "total_item", nullable = false, columnDefinition = "int default 0")
+	    private int totalItem;
 
-	private int totalDiscountedPrice;
+	    @Column(name = "total_discounted_price", nullable = false, columnDefinition = "int default 0")  // ← was missing
+	    private int totalDiscountedPrice;
 
-	private int discount;
+	    @Column(name = "discount", nullable = false, columnDefinition = "int default 0")                // ← was missing
+	    private int discount;
 
 }

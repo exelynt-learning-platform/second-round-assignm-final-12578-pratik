@@ -3,6 +3,7 @@ package com.multigenesystask.exception;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -52,9 +53,14 @@ public class GlobalExceptionHandler {
 		
 	}
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<ErrorDetails> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException me){
-		ErrorDetails err=new ErrorDetails(me.getBindingResult().getFieldError().getDefaultMessage(),"validation error",LocalDateTime.now());
-		return new ResponseEntity<>(err,HttpStatus.BAD_REQUEST);
+	public ResponseEntity<ErrorDetails> methodArgumentNotValidExceptionHandler(
+	        MethodArgumentNotValidException me) {
+	    String msg = me.getBindingResult().getFieldErrors().stream()
+	            .map(e -> e.getField() + ": " + e.getDefaultMessage())
+	            .collect(Collectors.joining(", "));
+	    if (msg.isBlank()) msg = me.getMessage();
+	    ErrorDetails err = new ErrorDetails(msg, "validation error", LocalDateTime.now());
+	    return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(NoHandlerFoundException.class)

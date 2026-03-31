@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.multigenesystask.entity.User;
+import com.multigenesystask.exception.UserException;
 import com.multigenesystask.repository.UserRepository;
 
 import lombok.AllArgsConstructor;

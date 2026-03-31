@@ -14,7 +14,7 @@ public interface UserService {
 	
 	public User findUserProfileByJwt(String jwt) throws UserException;
 	
-	public User findUserByEmail(String email);
+	public User findUserByEmail(String email) throws UserException;
 	
-	public User registerUser(User user);
+	public User registerUser(User user) throws UserException;
 }

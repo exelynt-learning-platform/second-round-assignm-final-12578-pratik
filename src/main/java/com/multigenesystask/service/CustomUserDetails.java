@@ -19,7 +19,7 @@ public class CustomUserDetails implements UserDetails{
 	    private Collection<? extends  GrantedAuthority> authorities;
 
 	    public static CustomUserDetails build(User user){
-	        GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole());
+	        GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().name());
 	        return new CustomUserDetails(
 	                user.getId(),
 	                user.getEmail(),

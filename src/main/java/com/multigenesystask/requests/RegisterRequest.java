@@ -5,9 +5,11 @@ import java.time.LocalDateTime;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.multigenesystask.entity.User;
+import com.multigenesystask.user.domain.UserRole;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -41,9 +43,8 @@ public class RegisterRequest {
     @Email(message = "Invalid email format")
     private String email;
 
-    @NotBlank(message = "Role is required")
-    @Pattern(regexp = "ROLE_USER|ROLE_ADMIN", message = "Role must be USER or ADMIN")
-    private String role;
+    @NotNull(message = "Role is required")
+    private UserRole role;
 
     @NotBlank(message = "Mobile number is required")
     @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid mobile number")

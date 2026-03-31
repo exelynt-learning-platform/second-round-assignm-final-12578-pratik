@@ -2,7 +2,6 @@ package com.multigenesystask.service;
 
 import java.util.Optional;
 
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,18 +24,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserServiceImplementation implements UserService {
 
-
 	private UserRepository userRepository;
 	private JwtUtils jwtUtils;
 	private AuthenticationManager authenticationManager;
 
 	@Override
-	public User registerUser(User user) {
+	public User registerUser(User user) throws UserException  {
+		if (userRepository.findByEmail(user.getEmail()) != null) {
+            throw new UserException("Email is Already Used with Another account");
+        }
 		return userRepository.save(user);
 	}
 
 	@Override
-	
+
 	public JwtAuthenticationResponse authenticateUser(LoginRequest loginRequest) {
 
 		Authentication authentication = authenticationManager.authenticate(
@@ -50,10 +51,14 @@ public class UserServiceImplementation implements UserService {
 		return new JwtAuthenticationResponse(jwt);
 	}
 
-	public User findUserByEmail(String email){
+	@Override
+	public User findUserByEmail(String email) throws UserException {
 		User user = userRepository.findByEmail(email);
-		return user;
+		if (user == null) {
+			throw new UserException("User not found with email: " + email);
 		}
+		return user;
+	}
 
 	@Override
 	public User findUserById(Long userId) throws UserException {
@@ -70,14 +75,13 @@ public class UserServiceImplementation implements UserService {
 		String email = jwtUtils.getUserNameFromJwtToken(jwt);
 
 		User user = userRepository.findByEmail(email);
-		if(user == null) {
-		    log.warn("User not found with email: {}", email);
+		if (user == null) {
+			log.warn("User not found with email: {}", email);
 
 			throw new UserException("User not found");
 		}
 
 		return user;
 	}
-
 
 }

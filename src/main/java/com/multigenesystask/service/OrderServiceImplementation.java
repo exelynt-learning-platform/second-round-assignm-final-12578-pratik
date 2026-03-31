@@ -43,10 +43,10 @@ public class OrderServiceImplementation implements OrderService {
 
 	@Override
 	@Transactional
-	public Order createOrder(User user, Address shippAddress) {
+	public Order createOrder(User user, Address shippingAddress) {
 
-		shippAddress.setUser(user);
-		Address address = addressRepository.save(shippAddress);
+		shippingAddress.setUser(user);
+		Address address = addressRepository.save(shippingAddress);
 		user.getAddresses().add(address);
 		userRepository.save(user);
 
@@ -133,7 +133,7 @@ public class OrderServiceImplementation implements OrderService {
 	}
 
 	@Override
-	public Order cancledOrder(Long orderId) throws OrderException {
+	public Order cancleOrder(Long orderId) throws OrderException {
 		Order order = findOrderById(orderId);
 		order.setOrderStatus(OrderStatus.CANCELLED);
 		return orderRepository.save(order);
@@ -151,9 +151,9 @@ public class OrderServiceImplementation implements OrderService {
 
 	@Override
 	public List<Order> usersOrderHistory(Long userId) throws OrderException {
-		List<Order> orders = orderRepository.getUsersOrders(userId);
+		return orderRepository.getUsersOrders(userId);
 		
-		return orders;
+		
 	}
 
 	@Override
@@ -164,10 +164,8 @@ public class OrderServiceImplementation implements OrderService {
 
 	@Override
 	public void deleteOrder(Long orderId) throws OrderException {
-
-		orderRepository.deleteById(orderId);
-		
-		log.info("delete order "+ orderId);
-
+	    Order order = findOrderById(orderId);
+	    orderRepository.delete(order);
+	    log.info("Deleted order {}", orderId);
 	}
 }
