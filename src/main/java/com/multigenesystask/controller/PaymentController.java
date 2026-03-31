@@ -29,6 +29,8 @@ public class PaymentController {
 	private final PaymentGatewayService paymentGatewayService;
 	private final OrderService orderService;
 	private final OrderRepository orderRepository;
+	
+	private static final String PAYMENT_STATUS_PAID = "paid";
 
 	// Explicit constructor injection — no Lombok DI conflict
 	public PaymentController(PaymentGatewayService paymentGatewayService, OrderService orderService,
@@ -93,7 +95,7 @@ public class PaymentController {
 		Order order = orderRepository.findByOrderId(paymentLinkId)
 				.orElseThrow(() -> new OrderException("Order not found for payment link: " + paymentLinkId));
 
-		if ("paid".equals(paymentLinkStatus) && paymentId != null && !paymentId.isEmpty()) {
+		if (PAYMENT_STATUS_PAID.equals(paymentLinkStatus) && paymentId != null && !paymentId.isEmpty()) {
 
 			if (order.getPaymentDetails() == null) {
 				order.setPaymentDetails(new PaymentDetails());

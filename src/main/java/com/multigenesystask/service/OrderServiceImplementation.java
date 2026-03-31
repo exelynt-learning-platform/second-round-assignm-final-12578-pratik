@@ -51,11 +51,8 @@ public class OrderServiceImplementation implements OrderService {
 		userRepository.save(user);
 
 		Cart cart = cartService.findUserCart(user.getId());
-		if (cart == null) {  // ← add this
-		    throw new OrderException("Cart not found for user: " + user.getId());
-		}
-		if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
-		    throw new OrderException("Cannot create order from empty cart");
+		if (cart == null || cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
+			throw new RuntimeException("Cannot create order: cart is empty or not found");
 		}
 		List<OrderItem> orderItems = new ArrayList<>();
 
@@ -112,7 +109,7 @@ public class OrderServiceImplementation implements OrderService {
 
 		order.setOrderStatus(OrderStatus.PLACED);
 		order.getPaymentDetails().setStatus(PaymentStatus.COMPLETED);
-		
+
 		return orderRepository.save(order);
 	}
 
@@ -158,8 +155,7 @@ public class OrderServiceImplementation implements OrderService {
 	@Override
 	public List<Order> usersOrderHistory(Long userId) throws OrderException {
 		return orderRepository.getUsersOrders(userId);
-		
-		
+
 	}
 
 	@Override
@@ -170,8 +166,8 @@ public class OrderServiceImplementation implements OrderService {
 
 	@Override
 	public void deleteOrder(Long orderId) throws OrderException {
-	    Order order = findOrderById(orderId);
-	    orderRepository.delete(order);
-	    log.info("Deleted order {}", orderId);
+		Order order = findOrderById(orderId);
+		orderRepository.delete(order);
+		log.info("Deleted order {}", orderId);
 	}
 }
