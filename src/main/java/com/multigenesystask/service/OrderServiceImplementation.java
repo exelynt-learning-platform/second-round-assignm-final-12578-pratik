@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.multigenesystask.exception.UserException;
 import org.springframework.stereotype.Service;
 
 import com.multigenesystask.entity.Address;
@@ -51,9 +52,9 @@ public class OrderServiceImplementation implements OrderService {
 		userRepository.save(user);
 
 		Cart cart = cartService.findUserCart(user.getId());
-		if (cart == null || cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
-			throw new RuntimeException("Cannot create order: cart is empty or not found");
-		}
+        if (cart == null || cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
+            throw new OrderException("Cannot create order: cart is empty or not found for user: " + user.getId());
+        }
 		List<OrderItem> orderItems = new ArrayList<>();
 
 		for (CartItem item : cart.getCartItems()) {
@@ -95,7 +96,6 @@ public class OrderServiceImplementation implements OrderService {
 			item.setOrder(savedOrder);
 			orderItemRepository.save(item);
 		}
-
 		return savedOrder;
 
 	}
@@ -106,7 +106,6 @@ public class OrderServiceImplementation implements OrderService {
 		if (order.getPaymentDetails() == null) {
 			order.setPaymentDetails(new PaymentDetails());
 		}
-
 		order.setOrderStatus(OrderStatus.PLACED);
 		order.getPaymentDetails().setStatus(PaymentStatus.COMPLETED);
 
@@ -160,7 +159,6 @@ public class OrderServiceImplementation implements OrderService {
 
 	@Override
 	public List<Order> getAllOrders() {
-
 		return orderRepository.findAllByOrderByCreatedAtDesc();
 	}
 

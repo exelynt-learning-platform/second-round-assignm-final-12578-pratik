@@ -1,5 +1,6 @@
 package com.multigenesystask.controller;
 
+import com.multigenesystask.response.UserResponse;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
@@ -28,14 +29,20 @@ public class AuthController {
 	private PasswordEncoder passwordEncoder;
 
 	@PostMapping("/public/register")
-	public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterRequest registerRequest)
+	public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody RegisterRequest registerRequest)
 			throws UserException {
 
 		User user = registerRequest.convertToUser(passwordEncoder);
 
-		userService.registerUser(user);
-
-		return ResponseEntity.status(HttpStatus.CREATED).body("User created Successfully");
+		User saved= userService.registerUser(user);
+        UserResponse response = new UserResponse(
+                "User created successfully",
+                saved.getEmail(),
+                saved.getFirstName(),
+                saved.getLastName(),
+                saved.getRole().name()
+        );
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 	@PostMapping("/public/login")

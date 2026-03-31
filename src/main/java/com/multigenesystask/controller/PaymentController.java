@@ -2,6 +2,7 @@ package com.multigenesystask.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -76,6 +77,7 @@ public class PaymentController {
 	 * this URL directly with a fake payment_id.
 	 */
 	@GetMapping("/payments")
+    @PreAuthorize("isAuthenticated() or hasIpAddress('0.0.0.0/0')")
 	public ResponseEntity<ApiResponse> redirect(@RequestParam("razorpay_payment_id") String paymentId,
 			@RequestParam("razorpay_payment_link_id") String paymentLinkId,
 			@RequestParam("razorpay_payment_link_reference_id") String referenceId,

@@ -14,6 +14,8 @@ import com.multigenesystask.requests.AddItemRequest;
 
 import lombok.AllArgsConstructor;
 
+import java.util.HashSet;
+
 @Service
 @AllArgsConstructor
 
@@ -38,7 +40,12 @@ public class CartServiceImplementation implements CartService {
                     .orElseThrow(() -> new RuntimeException("User not found: " + userId));
             cart = new Cart();
             cart.setUser(user);
+            cart.setCartItems(new HashSet<>());
             cart = cartRepository.save(cart);
+        }
+
+        if (cart.getCartItems() == null) {
+            cart.setCartItems(new HashSet<>());
         }
         return cart;
     }
@@ -57,7 +64,7 @@ public class CartServiceImplementation implements CartService {
 		return cartRepository.save(cart);
 	}
 
-	public Cart findUserCart(Long userId) {
+	public Cart findUserCart(Long userId)  {
 		 Cart cart = getOrCreateCart(userId); 
 		
 		    double oldPrice        = cart.getTotalPrice();
@@ -92,6 +99,9 @@ public class CartServiceImplementation implements CartService {
 			cartItem.setSize(req.getSize());
 
 			CartItem createdCartItem = cartItemService.createCartItem(cartItem);
+            if (cart.getCartItems() == null) {
+                cart.setCartItems(new HashSet<>());
+            }
 			cart.getCartItems().add(createdCartItem);
 			return createdCartItem;
 		}

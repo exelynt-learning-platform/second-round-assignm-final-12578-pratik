@@ -1,6 +1,8 @@
 package com.multigenesystask.config;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,10 +69,22 @@ public class AppConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    
+
     private CorsConfiguration buildCorsConfig(List<String> methods, List<String> headers) {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(allowedOrigins));
+
+        // Split comma-separated origins, trim whitespace, reject wildcard
+        List<String> origins = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(o -> !o.isEmpty() && !o.equals("*"))
+                .collect(Collectors.toList());
+
+        if (origins.isEmpty()) {
+            throw new IllegalStateException(
+                    "No valid CORS origins configured. Wildcard '*' is not permitted with credentials.");
+        }
+
+        config.setAllowedOrigins(origins);
         config.setAllowedMethods(methods);
         config.setAllowedHeaders(headers);
         config.setAllowCredentials(true);
@@ -110,7 +124,8 @@ public class AppConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/payments").permitAll() 
+                    .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/payments").permitAll()
+                    .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/payments/**").authenticated()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             );

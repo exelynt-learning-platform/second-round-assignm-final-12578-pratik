@@ -16,6 +16,7 @@ import com.multigenesystask.repository.CartItemRepository;
 import lombok.AllArgsConstructor;
 
 
+
 @Service
 @AllArgsConstructor
 
@@ -34,10 +35,12 @@ public class CartItemServiceImplementation implements CartItemService {
 	}
 
 	@Override
-	public CartItem createCartItem(CartItem cartItem) {
-
-		
-
+	public CartItem createCartItem(CartItem cartItem) throws CartItemException {
+        if (cartItem.getProduct() == null) {
+            throw new CartItemException("Product must not be null when creating cart item");
+        }
+        cartItem.setPrice(cartItem.getQuantity() * cartItem.getProduct().getPrice());
+        cartItem.setDiscountedPrice(cartItem.getQuantity() * cartItem.getProduct().getDiscountedPrice());
 		return cartItemRepository.save(cartItem);
 
 	}
@@ -50,8 +53,9 @@ public class CartItemServiceImplementation implements CartItemService {
 
 	  validateCartItemOwnership(userId, item);
 	    Product product = item.getProduct();
+
 	    if (product == null) {
-	        throw new CartItemException("Cart item has no associated product");
+            throw new CartItemException("Product not found for cart item id: " +  item.getId());
 	    }
 
 	    int unitPrice      = product.getPrice()           != null ? product.getPrice()           : 0;

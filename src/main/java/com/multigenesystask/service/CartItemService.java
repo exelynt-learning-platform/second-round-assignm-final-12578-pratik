@@ -8,7 +8,7 @@ import com.multigenesystask.exception.UserException;
 
 public interface CartItemService {
 	
-public CartItem createCartItem(CartItem cartItem);
+public CartItem createCartItem(CartItem cartItem) throws CartItemException;
 	
 	public CartItem updateCartItem(Long userId, Long id,CartItem cartItem) throws CartItemException, UserException;
 	

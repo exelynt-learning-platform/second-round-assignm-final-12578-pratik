@@ -5,6 +5,8 @@ import java.security.Principal;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,22 +38,24 @@ public class CartController {
 	private UserService userService;
 
 	@GetMapping
-	public ResponseEntity<Cart> findUserCartHandler(Principal principal) throws UserException{
-        log.info("GET cart request for user: {}", principal.getName());
-
-		User user=userService.findUserByEmail(principal.getName());
+	public ResponseEntity<Cart> findUserCartHandler(@AuthenticationPrincipal UserDetails userDetails) throws UserException{
+        log.info("GET cart request for user: {}", userDetails.getUsername());
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+		User user=userService.findUserByEmail(userDetails.getUsername());
 		Cart cart=cartService.findUserCart(user.getId());
 		
 		return new ResponseEntity<>(cart,HttpStatus.OK);
 	}
 	
 	@PutMapping("/add")
-	public ResponseEntity<CartItem> addItemToCart(@RequestBody AddItemRequest req, 
-			Principal principal) throws UserException, ProductException{
+	public ResponseEntity<CartItem> addItemToCart(@RequestBody AddItemRequest req,
+                                                  @AuthenticationPrincipal UserDetails userDetails) throws UserException, ProductException{
 		
-		log.info("Add to cart request for user: {}", principal.getName());
+		log.info("Add to cart request for user: {}", userDetails.getUsername());
 		
-		User user=userService.findUserByEmail(principal.getName());
+		User user=userService.findUserByEmail(userDetails.getUsername());
 		
 		CartItem item = cartService.addCartItem(user.getId(), req);
 		

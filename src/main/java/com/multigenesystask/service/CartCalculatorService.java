@@ -9,13 +9,19 @@ import com.multigenesystask.entity.CartItem;
 public class CartCalculatorService {
 
 	public void calculateCartTotals(Cart cart) {
-		if (cart == null || cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
-			return; 
-		}
 
 		int totalPrice = 0;
 		int totalDiscountedPrice = 0;
 		int totalItem = 0;
+
+
+        if (cart.getCartItems() == null) {   // ← add this null check
+            cart.setTotalPrice(0);
+            cart.setTotalDiscountedPrice(0);
+            cart.setDiscount(0);
+            cart.setTotalItem(0);
+            return;
+        }
 
 		for (CartItem item : cart.getCartItems()) {
 			totalPrice += item.getPrice() != null ? item.getPrice() : 0;
