@@ -32,6 +32,12 @@ public class PaymentGatewayService {
     @Value("${app.payment.callback-url}")
     private String callbackUrl;
 
+    
+    @Value("${app.payment.currency}")
+    private String currency;
+
+    @Value("${app.payment.callback-method}")
+    private String callbackMethod;
     // Single shared RazorpayClient — not created per request
     public PaymentGatewayService(
             @Value("${razorpay.api.key}") String apiKey,
@@ -50,7 +56,7 @@ public class PaymentGatewayService {
 
         JSONObject paymentLinkRequest = new JSONObject();
         paymentLinkRequest.put("amount", amount);
-        paymentLinkRequest.put("currency", "INR");
+        paymentLinkRequest.put("currency", currency);
         
         paymentLinkRequest.put("reference_id", order.getId().toString());
 
@@ -69,7 +75,7 @@ public class PaymentGatewayService {
 
         // Callback URL from config — not hardcoded
         paymentLinkRequest.put("callback_url", callbackUrl);
-        paymentLinkRequest.put("callback_method", "get");
+        paymentLinkRequest.put("callback_method", callbackMethod);
 
         return razorpay.paymentLink.create(paymentLinkRequest);
     }

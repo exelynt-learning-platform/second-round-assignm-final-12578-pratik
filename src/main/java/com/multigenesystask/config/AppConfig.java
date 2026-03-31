@@ -67,39 +67,34 @@ public class AppConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    
+    private CorsConfiguration buildCorsConfig(List<String> methods, List<String> headers) {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of(allowedOrigins));
+        config.setAllowedMethods(methods);
+        config.setAllowedHeaders(headers);
+        config.setAllowCredentials(true);
+        return config;
+    }
     // ✅ CORS Configuration (SECURE)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
-        // ── 1. Frontend API routes (/api/** except payments and auth) ──────────
-        CorsConfiguration apiConfig = new CorsConfiguration();
-        apiConfig.setAllowedOrigins(List.of(allowedOrigins));
-        apiConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        apiConfig.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        apiConfig.setAllowCredentials(true);
-        source.registerCorsConfiguration("/api/cart/**",       apiConfig);
-        source.registerCorsConfiguration("/api/orders/**",     apiConfig);
-        source.registerCorsConfiguration("/api/products/**",   apiConfig);
-        source.registerCorsConfiguration("/api/ratings/**",    apiConfig);
-        source.registerCorsConfiguration("/api/reviews/**",    apiConfig);
-        source.registerCorsConfiguration("/api/users/**",      apiConfig);
-        source.registerCorsConfiguration("/api/cart_items/**", apiConfig);
-        source.registerCorsConfiguration("/api/admin/**",      apiConfig);
+        CorsConfiguration apiConfig = buildCorsConfig(
+            List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"),
+            List.of("Authorization", "Content-Type")
+        );
+        List.of("/api/cart/**", "/api/orders/**", "/api/products/**",
+                "/api/ratings/**", "/api/reviews/**", "/api/users/**",
+                "/api/cart_items/**", "/api/admin/**")
+            .forEach(path -> source.registerCorsConfiguration(path, apiConfig));
 
-        // ── 2. Auth routes — no Authorization header needed for login/register ─
-        CorsConfiguration authConfig = new CorsConfiguration();
-        authConfig.setAllowedOrigins(List.of("http://localhost:4200"));
-        authConfig.setAllowedMethods(List.of("POST", "OPTIONS"));
-        authConfig.setAllowedHeaders(List.of("Content-Type")); // ← no Authorization
-        authConfig.setAllowCredentials(true);
+        CorsConfiguration authConfig = buildCorsConfig(
+            List.of("POST", "OPTIONS"),
+            List.of("Content-Type")
+        );
         source.registerCorsConfiguration("/api/auth/**", authConfig);
-
-        // ── 3. Payment callback — Razorpay server-to-server GET redirect ───────
-        // No CORS headers at all. Browser never calls this directly.
-        // Razorpay redirects the user's browser here after payment — no preflight.
-        // Intentionally not registered → no CORS config = no CORS headers sent.
 
         return source;
     }

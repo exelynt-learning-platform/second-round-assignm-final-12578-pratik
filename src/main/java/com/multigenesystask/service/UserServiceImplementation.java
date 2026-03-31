@@ -9,7 +9,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.springframework.stereotype.Service;
 
-import com.multigenesystask.config.jwt.JwtUtils;
 import com.multigenesystask.entity.User;
 import com.multigenesystask.exception.UserException;
 import com.multigenesystask.repository.UserRepository;
@@ -25,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserServiceImplementation implements UserService {
 
 	private UserRepository userRepository;
-	private JwtUtils jwtUtils;
+	private JwtService jwtService;
 	private AuthenticationManager authenticationManager;
 
 	@Override
@@ -43,7 +42,7 @@ public class UserServiceImplementation implements UserService {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-		String jwt = jwtUtils.generateToken(userDetails);
+		String jwt = jwtService.generateToken(userDetails);
 
 		return new JwtAuthenticationResponse(jwt);
 	}
@@ -67,18 +66,7 @@ public class UserServiceImplementation implements UserService {
 		throw new UserException("user Not Found with id: " + userId);
 	}
 
-	@Override
-	public User findUserProfileByJwt(String jwt) throws UserException {
-		String email = jwtUtils.getUserNameFromJwtToken(jwt);
+	
 
-		User user = userRepository.findByEmail(email);
-		if (user == null) {
-			log.warn("User not found with email: {}", email);
-
-			throw new UserException("User not found");
-		}
-
-		return user;
-	}
 
 }

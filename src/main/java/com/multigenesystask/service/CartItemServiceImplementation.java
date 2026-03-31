@@ -3,12 +3,12 @@ package com.multigenesystask.service;
 import java.util.Optional;
 
 
+
 import org.springframework.stereotype.Service;
 
 import com.multigenesystask.entity.Cart;
 import com.multigenesystask.entity.CartItem;
 import com.multigenesystask.entity.Product;
-import com.multigenesystask.entity.User;
 import com.multigenesystask.exception.CartItemException;
 import com.multigenesystask.exception.UserException;
 import com.multigenesystask.repository.CartItemRepository;
@@ -22,7 +22,16 @@ import lombok.AllArgsConstructor;
 public class CartItemServiceImplementation implements CartItemService {
 
 	private CartItemRepository cartItemRepository;
-	private UserService userService;
+	
+	// helper method 
+	private void validateCartItemOwnership(Long userId, CartItem item) throws CartItemException {
+	    if (item.getUserId() == null) {
+	        throw new CartItemException("Cart item has no user ID");
+	    }
+	    if (!userId.equals(item.getUserId())) {
+	        throw new CartItemException("You can't update another user's cart item");
+	    }
+	}
 
 	@Override
 	public CartItem createCartItem(CartItem cartItem) {
@@ -39,13 +48,7 @@ public class CartItemServiceImplementation implements CartItemService {
 
 	    CartItem item = findCartItemById(id);
 
-	    if (item.getUserId() == null) {
-	        throw new CartItemException("Cart item has no user ID");
-	    }
-	    if (!userId.equals(item.getUserId())) {
-	        throw new CartItemException("You can't update another user's cart item");
-	    }
-
+	  validateCartItemOwnership(userId, item);
 	    Product product = item.getProduct();
 	    if (product == null) {
 	        throw new CartItemException("Cart item has no associated product");
@@ -72,21 +75,9 @@ public class CartItemServiceImplementation implements CartItemService {
 	@Override
 	public void removeCartItem(Long userId, Long cartItemId) throws CartItemException, UserException {
 
-		CartItem cartItem = findCartItemById(cartItemId);
-
-		if (cartItem.getUserId() == null) {
-			throw new CartItemException("Cart item has no user ID");
-		}
-		
-		
-		User user = userService.findUserById(cartItem.getUserId());
-		User reqUser = userService.findUserById(userId);
-
-		if (user.getId().equals(reqUser.getId())) {
-			cartItemRepository.deleteById(cartItem.getId());
-		} else {
-			throw new UserException("you can't remove anothor users item");
-		}
+		 CartItem cartItem = findCartItemById(cartItemId);
+		    validateCartItemOwnership(userId, cartItem); 
+		    cartItemRepository.deleteById(cartItem.getId());
 
 	}
 

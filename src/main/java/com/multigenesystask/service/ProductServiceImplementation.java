@@ -28,15 +28,23 @@ public class ProductServiceImplementation implements ProductService {
 	private ProductRepository productRepository;
 
 	private CategoryRepository categoryRepository;
+	
+	
+	private static final int CATEGORY_LEVEL_TOP    = 1;
+	private static final int CATEGORY_LEVEL_SECOND = 2;
+	private static final int CATEGORY_LEVEL_THIRD  = 3;
 
 	@Override
 	public Product createProduct(CreateProductRequest req) throws ProductException {
+		
+		
+		
 
-		Category topLevel = getOrCreateCategory(req.getTopLevelCategory(), 1, null);
+		Category topLevel = getOrCreateCategory(req.getTopLevelCategory(), CATEGORY_LEVEL_TOP, null);
 
-		Category secondLevel = getOrCreateCategory(req.getSecondLevelCategory(), 2, topLevel);
+		Category secondLevel = getOrCreateCategory(req.getSecondLevelCategory(), CATEGORY_LEVEL_SECOND, topLevel);
 
-		Category thirdLevel = getOrCreateCategory(req.getThirdLevelCategory(), 3, secondLevel);
+		Category thirdLevel = getOrCreateCategory(req.getThirdLevelCategory(), CATEGORY_LEVEL_THIRD, secondLevel);
 
 		Product product = new Product();
 		product.setTitle(req.getTitle());

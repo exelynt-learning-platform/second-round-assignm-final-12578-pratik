@@ -37,7 +37,8 @@ public class CartController {
 
 	@GetMapping
 	public ResponseEntity<Cart> findUserCartHandler(Principal principal) throws UserException{
-		
+        log.info("GET cart request for user: {}", principal.getName());
+
 		User user=userService.findUserByEmail(principal.getName());
 		Cart cart=cartService.findUserCart(user.getId());
 		
@@ -47,6 +48,8 @@ public class CartController {
 	@PutMapping("/add")
 	public ResponseEntity<CartItem> addItemToCart(@RequestBody AddItemRequest req, 
 			Principal principal) throws UserException, ProductException{
+		
+		log.info("Add to cart request for user: {}", principal.getName());
 		
 		User user=userService.findUserByEmail(principal.getName());
 		
