@@ -30,9 +30,6 @@ public class UserServiceImplementation implements UserService {
 
 	@Override
 	public User registerUser(User user) throws UserException  {
-		if (userRepository.findByEmail(user.getEmail()) != null) {
-            throw new UserException("Email is Already Used with Another account");
-        }
 		return userRepository.save(user);
 	}
 

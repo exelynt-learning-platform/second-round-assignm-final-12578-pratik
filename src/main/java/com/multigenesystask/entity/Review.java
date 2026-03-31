@@ -2,6 +2,7 @@ package com.multigenesystask.entity;
 
 import java.time.LocalDateTime;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
@@ -21,7 +22,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Review {
+public class Review extends BaseEntity{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -39,6 +40,5 @@ public class Review {
 	@JoinColumn(name = "user_id")
 	private User user;
 	
-	private LocalDateTime createdAt;
 
 }

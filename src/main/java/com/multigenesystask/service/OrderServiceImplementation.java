@@ -43,7 +43,7 @@ public class OrderServiceImplementation implements OrderService {
 
 	@Override
 	@Transactional
-	public Order createOrder(User user, Address shippingAddress) {
+	public Order createOrder(User user, Address shippingAddress) throws OrderException {
 
 		shippingAddress.setUser(user);
 		Address address = addressRepository.save(shippingAddress);
@@ -51,6 +51,12 @@ public class OrderServiceImplementation implements OrderService {
 		userRepository.save(user);
 
 		Cart cart = cartService.findUserCart(user.getId());
+		if (cart == null) {  // ← add this
+		    throw new OrderException("Cart not found for user: " + user.getId());
+		}
+		if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
+		    throw new OrderException("Cannot create order from empty cart");
+		}
 		List<OrderItem> orderItems = new ArrayList<>();
 
 		for (CartItem item : cart.getCartItems()) {

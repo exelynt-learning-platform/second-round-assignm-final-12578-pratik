@@ -83,8 +83,9 @@ public class ProductServiceImplementation implements ProductService {
 	public String deleteProduct(Long productId) throws ProductException {
 
 		Product product = findProductById(productId);
-		product.getSizes().clear();
-
+		if (product.getSizes() != null) {  // ← add null check
+	        product.getSizes().clear();
+	    }
 		productRepository.delete(product);
 
 		return "Product deleted Successfully";
@@ -116,15 +117,15 @@ public class ProductServiceImplementation implements ProductService {
 	@Override
 	public List<Product> findProductByCategory(String category) {
 
-		List<Product> products = productRepository.findByCategory(category);
+		return productRepository.findByCategory(category);
 
-		return products;
+		
 	}
 
 	@Override
 	public List<Product> searchProduct(String query) {
-		List<Product> products = productRepository.searchProduct(query);
-		return products;
+	return productRepository.searchProduct(query);
+		
 	}
 
 	@Override

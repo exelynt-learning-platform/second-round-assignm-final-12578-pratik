@@ -65,7 +65,7 @@ public class Order {
 	private PaymentDetails paymentDetails;
 	
 	
-	private double totalPrice;
+	private Integer totalPrice;
 	
 	
 	private Integer totalDiscountedPrice;

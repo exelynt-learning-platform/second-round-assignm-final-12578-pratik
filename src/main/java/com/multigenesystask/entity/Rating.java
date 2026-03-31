@@ -1,8 +1,6 @@
 package com.multigenesystask.entity;
 
-import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,7 +21,7 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class Rating {
+public class Rating extends BaseEntity{
 	
 	 @Id
 	    @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,5 +38,5 @@ public class Rating {
 	    @Column(name = "rating")
 	    private double rating;
 	    
-	    private LocalDateTime createdAt;
+	   
 }

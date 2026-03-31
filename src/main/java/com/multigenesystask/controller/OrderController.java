@@ -36,7 +36,7 @@ public class OrderController {
 	@PostMapping
 	public ResponseEntity<Order> createOrderHandler(
 			@RequestBody Address shippingAddress,
-			Principal principal) throws UserException{
+			Principal principal) throws UserException, OrderException{
 		
 		User user=userService.findUserByEmail(principal.getName());
 		Order order =orderService.createOrder(user, shippingAddress);

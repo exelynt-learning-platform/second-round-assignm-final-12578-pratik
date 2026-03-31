@@ -10,18 +10,21 @@ public class CartCalculatorService {
 
 	
 	public void calculateCartTotals(Cart cart) {
-		int totalPrice = 0;
-		int totalDiscountedPrice = 0;
-		int totalItem = 0;
-		for(CartItem item: cart.getCartItems()) {
-			totalPrice += item.getPrice() != null ? item.getPrice() : 0;
-			totalDiscountedPrice += item.getDiscountedPrice() != null ? item.getDiscountedPrice() : 0;
-			totalItem = totalItem + item.getQuantity();
-			
-		}
-		cart.setTotalPrice(totalPrice);
-		cart.setTotalDiscountedPrice(totalDiscountedPrice);
-		cart.setDiscount(totalPrice - totalDiscountedPrice);
-		cart.setTotalItem(totalItem);
-	}
+		if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) return;
+
+        int totalPrice = 0;
+        int totalDiscountedPrice = 0;
+        int totalItem = 0;
+
+        for (CartItem item : cart.getCartItems()) {
+            totalPrice          += item.getPrice()           != null ? item.getPrice()           : 0;
+            totalDiscountedPrice += item.getDiscountedPrice() != null ? item.getDiscountedPrice() : 0;
+            totalItem           += item.getQuantity();
+        }
+
+        cart.setTotalPrice(totalPrice);
+        cart.setTotalDiscountedPrice(totalDiscountedPrice);
+        cart.setDiscount(totalPrice - totalDiscountedPrice);
+        cart.setTotalItem(totalItem);
+    }
 }

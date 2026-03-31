@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.commons.codec.binary.Hex;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -100,14 +101,9 @@ public class PaymentGatewayService {
             byte[] hash = mac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
 
             // Convert byte array to hex string
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
-            }
+           
 
-            return hexString.toString().equals(razorpaySignature);
+            return Hex.encodeHexString(hash).equals(razorpaySignature);
 
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             log.error("Razorpay signature verification failed: {}", e.getMessage());

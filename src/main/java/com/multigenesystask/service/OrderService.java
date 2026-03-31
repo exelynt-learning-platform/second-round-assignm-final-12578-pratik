@@ -9,7 +9,7 @@ import com.multigenesystask.exception.OrderException;
 
 public interface OrderService {
 	
-	public Order createOrder(User user, Address shippingAdress);
+	public Order createOrder(User user, Address shippingAdress)throws OrderException;
 	
 	public Order findOrderById(Long orderId) throws OrderException;
 	

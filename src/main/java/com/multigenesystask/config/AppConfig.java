@@ -2,8 +2,8 @@ package com.multigenesystask.config;
 
 import java.util.List;
 
-
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,14 +31,19 @@ import lombok.AllArgsConstructor;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@AllArgsConstructor
+
 public class AppConfig {
 
+	@Autowired
     private UserDetailsService userDetailsService;
 
+	@Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // ✅ Password Encoder
+   
+    
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigins;
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -70,7 +75,7 @@ public class AppConfig {
 
         // ── 1. Frontend API routes (/api/** except payments and auth) ──────────
         CorsConfiguration apiConfig = new CorsConfiguration();
-        apiConfig.setAllowedOrigins(List.of("http://localhost:4200"));
+        apiConfig.setAllowedOrigins(List.of(allowedOrigins));
         apiConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         apiConfig.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         apiConfig.setAllowCredentials(true);
