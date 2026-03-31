@@ -26,13 +26,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PaymentGatewayService {
 
+    private static final String HMAC_ALGORITHM = "HmacSHA256";
+
     private final RazorpayClient razorpay;
     private final String apiSecret;
 
     @Value("${app.payment.callback-url}")
     private String callbackUrl;
 
-    
+
     @Value("${app.payment.currency}")
     private String currency;
 
@@ -57,7 +59,7 @@ public class PaymentGatewayService {
         JSONObject paymentLinkRequest = new JSONObject();
         paymentLinkRequest.put("amount", amount);
         paymentLinkRequest.put("currency", currency);
-        
+
         paymentLinkRequest.put("reference_id", order.getId().toString());
 
         JSONObject customer = new JSONObject();
@@ -99,15 +101,15 @@ public class PaymentGatewayService {
         try {
             String payload = paymentLinkId + "|" + referenceId + "|" + paymentLinkStatus + "|" + paymentId;
 
-            Mac mac = Mac.getInstance("HmacSHA256");
+            Mac mac = Mac.getInstance(HMAC_ALGORITHM);
             SecretKeySpec secretKey = new SecretKeySpec(
-                    apiSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+                    apiSecret.getBytes(StandardCharsets.UTF_8), HMAC_ALGORITHM);
             mac.init(secretKey);
 
             byte[] hash = mac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
 
             // Convert byte array to hex string
-           
+
 
             return Hex.encodeHexString(hash).equals(razorpaySignature);
 

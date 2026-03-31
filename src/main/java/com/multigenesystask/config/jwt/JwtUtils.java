@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class JwtUtils {
+    private static final String BEARER_PREFIX = "Bearer ";
+
     @Value("${jwt.secret}")
     private String jwtSecret;
 
@@ -45,8 +47,8 @@ public class JwtUtils {
     //Authorization -> Bearer <TOKEN>
     public String getJwtFromHeader(HttpServletRequest request){
         String bearerToken = request.getHeader("Authorization");
-        if(bearerToken != null && bearerToken.startsWith("Bearer ")){
-            return bearerToken.substring(7);
+        if(bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)){
+            return bearerToken.substring(BEARER_PREFIX.length());
         }
         return null;
     }

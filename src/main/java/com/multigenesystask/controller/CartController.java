@@ -32,39 +32,36 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CartController {
 
-	
-	private CartService cartService;
+
+    private CartService cartService;
 
 
-	private UserService userService;
+    private UserService userService;
 
-	@GetMapping
-	public ResponseEntity<Cart> findUserCartHandler(@AuthenticationPrincipal UserDetails userDetails) throws UserException{
+    @GetMapping
+    public ResponseEntity<Cart> findUserCartHandler(@AuthenticationPrincipal UserDetails userDetails) throws UserException{
         log.info("GET cart request for user: {}", userDetails.getUsername());
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-		User user=userService.findUserByEmail(userDetails.getUsername());
-		Cart cart=cartService.findUserCart(user.getId());
-		
-		return new ResponseEntity<>(cart,HttpStatus.OK);
-	}
-	
-	@PutMapping("/add")
-	public ResponseEntity<CartItem> addItemToCart(@RequestBody AddItemRequest req,
+        User user=userService.findUserByEmail(userDetails.getUsername());
+        Cart cart=cartService.findUserCart(user.getId());
+
+        return new ResponseEntity<>(cart,HttpStatus.OK);
+    }
+
+    @PutMapping("/add")
+    public ResponseEntity<CartItem> addItemToCart(@RequestBody AddItemRequest req,
                                                   @AuthenticationPrincipal UserDetails userDetails) throws UserException, ProductException, CartItemException {
-		
-		log.info("Add to cart request for user: {}", userDetails.getUsername());
-		
-		User user=userService.findUserByEmail(userDetails.getUsername());
-		
-		CartItem item = cartService.addCartItem(user.getId(), req);
-		
-		
-		log.info("Item Added To Cart Successfully");
-		
-		return new ResponseEntity<>(item,HttpStatus.ACCEPTED);
-		
-	}
+
+        log.info("Add to cart request for user: {}", userDetails.getUsername());
+
+        User user=userService.findUserByEmail(userDetails.getUsername());
+
+        CartItem item = cartService.addCartItem(user.getId(), req);
+
+
+        log.info("Item Added To Cart Successfully");
+
+        return new ResponseEntity<>(item,HttpStatus.ACCEPTED);
+
+    }
 
 }
